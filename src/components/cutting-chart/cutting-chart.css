@@ -1,0 +1,11 @@
+.cutting-chart_settings-wrapper {
+  width: 100%;
+  padding: 20px 0;
+}
+
+.cutting-chart__canvas {
+  width: 500px;
+  height: 350px;
+  background-color: #eee;
+  border: 1px solid #ccc;
+}

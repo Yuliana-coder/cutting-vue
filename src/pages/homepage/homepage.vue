@@ -1,6 +1,9 @@
 <template>
   <main class="homepage">
-   Homepage
+   <div>
+     <router-link :to="'/program'" target="_blank">Open program</router-link>
+     
+   </div>
   </main>
 </template>
 
