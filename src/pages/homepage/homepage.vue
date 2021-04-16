@@ -2,7 +2,6 @@
   <main class="homepage">
    <div>
      <router-link :to="'/program'" target="_blank">Open program</router-link>
-     
    </div>
   </main>
 </template>

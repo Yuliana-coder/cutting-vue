@@ -1,6 +1,7 @@
 <template>
   <main class="program">
-   Program
+    <div class="program-settings">
+    </div>
    <div class="program-cutting-chart">
      <CuttingChart />
    </div>

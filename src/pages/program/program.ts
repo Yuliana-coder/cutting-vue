@@ -1,5 +1,5 @@
 import { Component, Vue } from "vue-property-decorator";
-import CuttingChart from "@/components/cutting-chart/cutting-chart.vue";
+import CuttingChart from "@/pages/program/components/cutting-chart/cutting-chart.vue";
 
 
 @Component({

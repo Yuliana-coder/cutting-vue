@@ -1,0 +1,43 @@
+.program {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.cutting-chart_settings-wrapper {
+  width: 100%;
+  padding: 20px 0;
+}
+
+.cutting-chart-main {
+  width: 100%;
+  height: 555px;
+  display: flex;
+}
+
+.cutting-chart__params-wrapper {
+  flex: 30%;
+  max-width: 30%;
+  background-color: rgb(255, 240, 224);
+}
+
+.cutting-chart__canvas-wrapper {
+  flex: 70%;
+  max-width: 70%;
+}
+
+.cutting-chart__canvas {
+  background-color: #eee;
+  border: 1px solid #ccc;
+}
+
+.cutting-chart__params__item-input-wrapper {
+  display: flex;
+  max-width: 100%;
+  flex-direction: column;
+}
+
+.cutting-chart__params-field {
+  display: flex;
+  max-width: 100%;
+}
