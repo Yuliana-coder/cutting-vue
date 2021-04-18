@@ -42,11 +42,25 @@ export default class CuttingChart extends Vue {
 
     @Watch("paperParamsInput", {deep: true}) onpaperParamsInputChange() {
         this.scaleFactor = 1;
+        // if((this.paperParamsInput.width > MAX_WIDTH_PAPER) || (this.paperParamsInput.height > MAX_HEIGHT_PAPER)) {
+        //     if(this.paperParamsInput.width > this.paperParamsInput.height) {
+        //         this.scaleFactor = MAX_WIDTH_PAPER / this.paperParamsInput.width;
+        //         console.log(this.scaleFactor, ">");
+        //     }else if(this.paperParamsInput.height >= this.paperParamsInput.width){
+        //         this.scaleFactor = MAX_HEIGHT_PAPER / this.paperParamsInput.height;
+        //         console.log(this.scaleFactor, "<");
+        //     }
+        // }
+        // this.canvas.width = this.paperParams.width;
+        // this.canvas.height = this.paperParams.heigth;
+    }
+
+    countScale() {
         if((this.paperParamsInput.width > MAX_WIDTH_PAPER) || (this.paperParamsInput.height > MAX_HEIGHT_PAPER)) {
-            if(this.paperParamsInput.width > this.paperParamsInput.height) {
+            if(Number(this.paperParamsInput.width) > Number(this.paperParamsInput.height)) {
                 this.scaleFactor = MAX_WIDTH_PAPER / this.paperParamsInput.width;
                 console.log(this.scaleFactor, ">");
-            }else if(this.paperParamsInput.height >= this.paperParamsInput.width){
+            }else {
                 this.scaleFactor = MAX_HEIGHT_PAPER / this.paperParamsInput.height;
                 console.log(this.scaleFactor, "<");
             }

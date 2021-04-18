@@ -18,6 +18,10 @@
               </div>
             </div>
         </div>
+            <button @click="countScale">
+              построить
+            </button>
+            {{paperParamsInput}}
         </div>
         <div id="myCanvas" class="cutting-chart__canvas-wrapper">
             <canvas ref="canvas" id="myCanvas" class="cutting-chart__canvas">
