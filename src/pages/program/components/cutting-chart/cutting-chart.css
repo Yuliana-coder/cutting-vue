@@ -1,9 +1,3 @@
-.program {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
 .cutting-chart_settings-wrapper {
   width: 100%;
   padding: 20px 0;
@@ -18,11 +12,13 @@
 .cutting-chart__params-wrapper {
   flex: 30%;
   max-width: 30%;
-  background-color: rgb(255, 240, 224);
+  /* background-color: rgb(255, 240, 224); */
 }
 
 .cutting-chart__canvas-wrapper {
-  flex: 70%;
+  display: flex;
+  flex-direction: column;
+  /* flex: 65%; */
   max-width: 70%;
 }
 
@@ -31,13 +27,61 @@
   border: 1px solid #ccc;
 }
 
-.cutting-chart__params__item-input-wrapper {
+.params__item-input-wrapper {
   display: flex;
   max-width: 100%;
-  flex-direction: column;
+  flex-wrap: wrap;
 }
 
 .cutting-chart__params-field {
   display: flex;
   max-width: 100%;
+}
+
+.params__item {
+  padding: 7px 0;
+  border-bottom: 1px solid black;
+}
+
+.params__item-title {
+  margin-bottom: 7px;
+  padding: 0 10px;
+}
+
+.params-field {
+  flex: 0 0 50%;
+  max-width: 50%;
+  padding: 0 10px;
+  margin-bottom: 5px;
+}
+
+.params-field-label {
+  color: rgb(116, 113, 113);
+  font-size: 14px;
+}
+
+.params-field_btn-wrapper {
+  padding-top: 37px;
+}
+
+.params-field-btn {
+  border: 1px solid #ccc;
+  border-radius: 9px;
+  background-color: rgb(200, 232, 241);
+}
+
+.params-field-btn:hover {
+  background-color: rgb(118, 184, 202);
+}
+
+.params-field-btn:disabled {
+  opacity: 0.85;
+}
+
+.params-field-btn:hover:disabled {
+  background-color: rgb(200, 232, 241);
+}
+
+.params__item-table {
+  width: 100%;
 }

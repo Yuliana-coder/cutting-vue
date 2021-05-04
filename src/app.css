@@ -5,7 +5,9 @@
   position: relative;
 }
 
-
 .default-input {
-  
+  max-width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  padding: 7px;
 }

@@ -1,6 +1,7 @@
 <template>
   <main class="program">
     <div class="program-settings">
+      панель инструментов
     </div>
    <div class="program-cutting-chart">
      <CuttingChart />
