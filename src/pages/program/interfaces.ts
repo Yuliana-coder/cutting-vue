@@ -3,3 +3,8 @@ export interface IPaperParams {
     height: number;
     allowanceBorder: number;
 }
+
+export interface IBlankParams {
+    width: number;
+    height: number;
+}

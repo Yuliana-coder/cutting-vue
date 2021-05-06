@@ -49,6 +49,9 @@
 }
 
 .params-field {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
   flex: 0 0 50%;
   max-width: 50%;
   padding: 0 10px;
@@ -84,4 +87,35 @@
 
 .params__item-table {
   width: 100%;
+}
+
+.params__item-blanks-add-wrapper {
+  width: 100%;
+  display: flex;
+}
+
+.params-item-blanks-add-field {
+  padding: 10px;
+  flex: 0 0 33.33%;
+  max-width: 33.33%;
+}
+
+.params-item-blanks-add-field-btn {
+  display: flex;
+  align-items: flex-end;
+}
+
+table {
+  border: 1px solid #ccc;  /* граница всей таблицы */
+}
+tr {
+  border: 1px solid #ccc;  /* границы между строками */
+}
+td, th {
+  border: 1px solid #ccc;  /* границы между столбцами */
+}
+
+.blanks__table {
+  width: 100%;
+  border-collapse: collapse;
 }

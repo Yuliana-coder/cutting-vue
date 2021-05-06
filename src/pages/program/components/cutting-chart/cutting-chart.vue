@@ -8,15 +8,15 @@
             </div>
             <div class="params__item-input-wrapper">
               <div class="params-field">
-                <label class="params-field-label" for="width-input">Ширина</label>
+                <label class="params-field-label" for="width-input">Ширина, мм</label>
                 <input min="0" type="number" v-model="paperParamsInput.width" name="width-input" class="default-input" />
               </div>
               <div class="params-field">
-                <label class="params-field-label" for="height-input">Высота</label>
+                <label class="params-field-label" for="height-input">Высота, мм</label>
                 <input min="0" type="number" v-model="paperParamsInput.height" name="height-input" class="default-input" />
               </div>
               <div class="params-field">
-                <label class="params-field-label" for="allowance-input">Припуск на окантовку</label>
+                <label class="params-field-label" for="allowance-input">Припуск на окантовку, мм</label>
                 <input min="0" type="number" v-model="paperParamsInput.allowanceBorder" name="allowance-input" class="default-input" />
               </div>
             </div>
@@ -27,65 +27,55 @@
             </div>
             <div class="params__item-input-wrapper">
               <div class="params-field">
-                <label class="params-field-label" for="countBlanks-input">Количество заготовок</label>
-                <input v-model="blanksCount" min="0" type="number" name="countBlanks-input" class="default-input" />
+                <label class="params-field-label" for="cut-input">Припуск на рез, мм</label>
+                <input v-model="allowanceBlank.cut" min="0" type="number" name="cut-input" class="default-input" />
               </div>
               <div class="params-field">
-                <label class="params-field-label" for="cut-input">Припуск на рез</label>
-                <input min="0" type="number" name="cut-input" class="default-input" />
+                <label class="params-field-label" for="blankBorder-input">Припуск на обработку заготовки, мм</label>
+                <input v-model="allowanceBlank.blankBorder" min="0" type="number" name="blankBorder-input" class="default-input" />
               </div>
-              <div class="params-field">
-                <label class="params-field-label" for="blankBordero-input">Припуск на обработку заготовки</label>
-                <input min="0" type="number" name="blankBordero-input" class="default-input" />
-              </div>
-              <div class="params-field params-field_btn-wrapper">
+              <!-- <div class="params-field params-field_btn-wrapper">
                 <button :disabled="blanksCount=== '0'" class="params-field-btn">Задать размеры заготовок</button>
-              </div>
+              </div> -->
             </div>
           </div>
-          <div class="params__item-table">
-            <table>
-              <caption>A summary of the UK's most famous punk bands</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Band</th>
-                  <th scope="col">Year formed</th>
-                  <th scope="col">No. of Albums</th>
-                  <th scope="col">Most famous song</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row">Buzzcocks</th>
-                  <td>1976</td>
-                  <td>9</td>
-                  <td>Ever fallen in love (with someone you shouldn't've)</td>
-                </tr>
-                <tr>
-                  <th scope="row">The Clash</th>
-                  <td>1976</td>
-                  <td>6</td>
-                  <td>London Calling</td>
-                </tr>
-
-                  ... some rows removed for brevity
-
-                <tr>
-                  <th scope="row">The Stranglers</th>
-                  <td>1974</td>
-                  <td>17</td>
-                  <td>No More Heroes</td>
-                </tr>
-              </tbody>
-              <tfoot>
-                <tr>
-                  <th scope="row" colspan="2">Total albums</th>
-                  <td colspan="2">77</td>
-                </tr>
-              </tfoot>
-            </table>
+          <div class="params__item params__item-blanks">
+            <div class="params__item-blanks-add-wrapper">
+              <div class="params-item-blanks-add-field">
+                <label class="params-field-label" for="cut-input">Ширина, мм</label>
+                <input v-model="blankParamsInput.width" min="0" type="number" name="cut-input" class="default-input" />
+              </div>
+              <div class="params-item-blanks-add-field">
+                <label class="params-field-label" for="blankBordero-input">Высота, мм</label>
+                <input v-model="blankParamsInput.height" min="0" type="number" name="blankBordero-input" class="default-input" />
+              </div>
+              <div class="params-item-blanks-add-field params-item-blanks-add-field-btn">
+                <button :disabled="!(blankParamsInput.width && blankParamsInput.height)" @click="addToBlanksList">+</button>
+              </div>
+            </div>
+            <div class="params__item-table">
+              <table class="blanks__table" v-if="blanksList && blanksList.length">
+                <caption>Список деталей</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">№</th>
+                    <th scope="col">Ширина</th>
+                    <th scope="col">Высота</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(blank, key) in blanksList" :key="key">
+                    <td>{{key + 1}}</td>
+                    <td>{{blank.width}}</td>
+                    <td>{{blank.height}}</td>
+                    <td><button @click="deleteBlank(blank.id)">Удалить {{blank.id}}</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-          <button class="params-btn" @click="countScale">
+          <button :disabled="!isNotAllFieldsFilled" class="params-btn" @click="countScale">
             построить
           </button>
         </div>

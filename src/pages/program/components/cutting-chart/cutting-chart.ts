@@ -1,8 +1,8 @@
 import { Vue, Component, Watch } from "vue-property-decorator";
-import { IPaperParams } from "@/pages/program/interfaces"
+import { IPaperParams, IBlankParams } from "@/pages/program/interfaces"
 
 const MAX_WIDTH_PAPER = 1000;
-const MAX_HEIGHT_PAPER = 650;
+const MAX_HEIGHT_PAPER = 600;
 
 @Component
 export default class CuttingChart extends Vue {
@@ -14,7 +14,16 @@ export default class CuttingChart extends Vue {
         height: 0,
         allowanceBorder: 0
     };
-    blanksList: any = []; // список деталей 
+    allowanceBlank: any = {
+        cut: 0,
+        blankBorder: 0
+    };
+    blankParamsInput: IBlankParams = {
+        width: 0,
+        height: 0
+    };
+
+    blanksList: any[] = []; // список деталей 
     blanksCount: number = 0;
 
     get paperParams() {
@@ -51,5 +60,35 @@ export default class CuttingChart extends Vue {
         }
         this.canvas.width = this.paperParams.width;
         this.canvas.height = this.paperParams.heigth;
+    }
+
+    get generateBlankId() {
+        let result: any = null;
+        let adder = 1;
+        while(!result) {
+            let filterBlanks = this.blanksList.filter((item: any) => { return item.id != this.blanksList.length + adder });
+            if(this.blanksList.length === filterBlanks.length) {
+                result = this.blanksList.length + adder;
+            }else {
+                adder = adder + 1;
+            }
+        }
+        return result;
+    }
+
+    addToBlanksList() {
+        this.blanksList.push({...this.blankParamsInput, id: this.generateBlankId});
+        this.blankParamsInput = {width: 0, height: 0};
+    }
+
+    deleteBlank(id: number) {
+        this.blanksList = this.blanksList.filter((item: any) => {
+            return item.id != id;
+        })
+    }
+
+    get isNotAllFieldsFilled() {
+        return Boolean(this.paperParamsInput.width && this.paperParamsInput.height
+         && this.blanksList && this.blanksList.length);
     }
 }
