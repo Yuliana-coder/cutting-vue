@@ -1,6 +1,6 @@
 <template>
   <div class="page-404">
-    <h1 class="page-404__title">404 :( </h1>
+    <h1 class="page-404__title">404 :(</h1>
   </div>
 </template>
 

@@ -3,9 +3,9 @@
     <div class="program-settings">
       панель инструментов
     </div>
-   <div class="program-cutting-chart">
-     <CuttingChart />
-   </div>
+    <div class="program-cutting-chart">
+      <CuttingChart />
+    </div>
   </main>
 </template>
 

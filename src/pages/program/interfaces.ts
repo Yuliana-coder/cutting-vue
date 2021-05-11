@@ -1,10 +1,10 @@
 export interface IPaperParams {
-    width: number;
-    height: number;
-    allowanceBorder: number;
+  width: number;
+  height: number;
+  allowanceBorder: number;
 }
 
 export interface IBlankParams {
-    width: number;
-    height: number;
+  width: number;
+  height: number;
 }

@@ -5,17 +5,11 @@ import store from "./store";
 Vue.use(VueRouter);
 import PageLayout from "@/layouts/page-layout.vue";
 
-  const Homepage = () =>
-  import("@/pages/homepage/homepage.vue");
+const Homepage = () => import("@/pages/homepage/homepage.vue");
 
-  const Program = () =>
-  import("@/pages/program/program.vue");
+const Program = () => import("@/pages/program/program.vue");
 
-  const Page404 = () =>
-  import("@/pages/page-404/page-404.vue");
-
-
-
+const Page404 = () => import("@/pages/page-404/page-404.vue");
 
 const router = new VueRouter({
   mode: "history",

@@ -1,7 +1,4 @@
 import { Component, Vue } from "vue-property-decorator";
 
-
 @Component
-export default class Homepage extends Vue {
- 
-}
+export default class Homepage extends Vue {}

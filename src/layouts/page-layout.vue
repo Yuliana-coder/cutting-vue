@@ -16,6 +16,5 @@ import Header from "@/components/header/header.vue";
     Header
   }
 })
-export default class PageLayout extends Vue {
-}
+export default class PageLayout extends Vue {}
 </script>
