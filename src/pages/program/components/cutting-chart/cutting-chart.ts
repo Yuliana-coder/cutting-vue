@@ -13,9 +13,9 @@ export default class CuttingChart extends Vue {
 
   currentTab = this.TABS.params;
 
-  canvas = <HTMLCanvasElement>{};
+  canvas: any = null;
   scaleFactor = 1; // коэфф-т на которой умноожаются все числовые значения с целью масштабирования
-  canvasCount = 1; // количество затраченных листов
+  canvasCount = 0; // количество затраченных листов
   paperParamsInput: IPaperParams = {
     // входные параметры-характеристики листа материала для раскроя
     width: 0,
@@ -34,10 +34,18 @@ export default class CuttingChart extends Vue {
   blanksList: any[] = []; // список деталей
   blanksCount: number = 0;
   isShowCutting: boolean = false;
-  currentPaper = 0;
+  currentPaper: any = 1;
+  bestSolutionValue: any = 1;
+  bestSolution: any = [];
+  tabuList: any = [];
+  currentSolution: any = []; //список деталей с координатами позиций для отрисовки
+  //содержит список список деталей, где индекс это номер листа материала (канваса)
+  finalySolution: any = [];
 
   //список допустимых позиций
   positionsList: any = [];
+
+  lastArrangedBlank: any = 0;
 
   get paperParams() {
     return {
@@ -65,16 +73,16 @@ export default class CuttingChart extends Vue {
   }
 
   mounted() {
-    this.canvas = <HTMLCanvasElement>this.$refs.canvas0;
-    const canvasWidth = window.innerWidth;
-    this.canvas.width = canvasWidth * (7 / 10) - 20;
-    this.canvas.height = 555;
-    let context = this.canvas.getContext("2d");
-    if (context) {
-      context.strokeRect(0, 0, 50, 50);
-      context.strokeRect(55, 0, 50, 100);
-      context.fillText(String(2), 55, 15);
-    }
+    // this.canvas = <HTMLCanvasElement>this.$refs.canvas0;
+    // this.canvas = document.getElementById(`myCanvas1`);
+    // this.canvas.width = 900;
+    // this.canvas.height = 555;
+    // let context = this.canvas.getContext("2d");
+    // if (context) {
+    //   context.strokeRect(0, 0, 50, 50);
+    //   context.strokeRect(55, 0, 50, 100);
+    //   context.fillText(String(2), 55, 15);
+    // }
   }
 
   countScale() {
@@ -160,27 +168,140 @@ export default class CuttingChart extends Vue {
     array.sort(() => Math.random() - 0.5);
   }
 
-  isCanBeArranged() {
+  //определяет может ли заготовка быть размещена на данную похицию
+  isCanBeArranged(blank, position) {
     //проверка на возможность расположить заготовку в текущую позицию
-    //реализовать!!!!!!
-    return true;
+    let isCan: any = false;
+    //если ширина заготовки не выходит за правую границу
+    if (position.x + blank.width > position.borderX) {
+      //если ширина заготовки не выходит за верхнюю границу
+      let isHaveBottomElement: any = false;
+      //если под заготовкой есть детали, то в пределах ширины нельзя персечься с заготовкой
+      this.currentSolution.forEach(element => {
+        if (element.y < position.y) {
+          //смотрим на зготовки с которыми можем персечься, то есть в пределах ширины
+          if (
+            position.x >= element.x &&
+            position.x < element.x + element.width
+          ) {
+            isHaveBottomElement = true;
+            if (
+              element.y <
+              position.y + blank.heigth + this.allowanceBlankParams.cut
+            ) {
+              isCan = true;
+            } else {
+              isCan = false;
+            }
+          }
+        }
+      });
+      // если под текущей позицией нет заготовок, то смотрим не выходит ли заготовки за пределы листа по высоте
+      if (!isHaveBottomElement) {
+        if (
+          position.y + blank.heigth + this.allowanceBlankParams.cut >
+          this.paperParams.heigth - this.paperParams.allowanceBorder
+        ) {
+          isCan = false;
+        } else {
+          isCan = true;
+        }
+      }
+    }
+    return isCan;
+  }
+
+  //возвращает правую границу по верхней заготовке или правую границу листа материала
+  rigthBorderByTopBlank(pointX, pointY) {
+    let borderX = this.paperParams.width - this.paperParams.allowanceBorder;
+    for (let i = 0; i < this.currentSolution.length; i++) {
+      if (this.currentSolution[i].y === this.paperParams.allowanceBorder) {
+        if (
+          pointX >= this.currentSolution[i].x &&
+          pointY <= this.currentSolution[i].x + this.currentSolution.width
+        ) {
+          borderX =
+            this.currentSolution[i].x +
+            this.currentSolution.width +
+            this.allowanceBlankParams.cut;
+        }
+      }
+    }
+
+    return borderX;
   }
 
   decodingProcedure(solution) {
-    for (let i = 0; i < solution.length; i++) {
+    this.currentSolution = this.blanksListParams;
+    // тот же самый список деталей, но уже с координатами для отрисовки
+    let lastArregned = 0;
+    for (let i = this.lastArrangedBlank; i < solution.length; i++) {
       let isFindPosition = false;
+
       for (let j = 0; j < this.positionsList.length; j++) {
-        if (this.isCanBeArranged()) {
-          this.blanksList[solution[i]].x = this.positionsList[j].x;
-          this.blanksList[solution[i]].y = this.positionsList[j].y;
+        //если можно разместить на текущем листе заготовку, зададим ей координаты допустимой позиции
+        //если ширина текущей заготовки не выходит за ширину границы
+        //если высота зготовки не выходит за нижнюю границу
+        if (
+          this.isCanBeArranged(
+            this.currentSolution[solution[i]],
+            this.positionsList[j]
+          )
+        ) {
+          this.currentSolution[solution[i]].x = this.positionsList[j].x;
+          this.currentSolution[solution[i]].y = this.positionsList[j].y;
+          //правая заготовка
+          this.positionsList.push({
+            x: (
+              Number(this.positionsList[j].x) +
+              this.currentSolution[solution[i]].width +
+              this.allowanceBlankParams.cut
+            ).toString(),
+            y: this.currentSolution[solution[i]].y,
+            borderX: this.rigthBorderByTopBlank(
+              this.positionsList[j].x +
+                this.currentSolution[solution[i]].width +
+                this.allowanceBlankParams.cut,
+              this.currentSolution[solution[i]].y
+            )
+          });
+          //нижняя заготовка
+          this.positionsList.push({
+            x: this.currentSolution[solution[i]].x,
+            y: (
+              Number(this.positionsList[j].y) +
+              this.currentSolution[solution[i]].height +
+              this.allowanceBlankParams.cut
+            ).toString(),
+            borderX: this.rigthBorderByTopBlank(
+              this.positionsList[j].x,
+              this.positionsList[j].y +
+                this.currentSolution[solution[i]].height +
+                this.allowanceBlankParams.cut
+            )
+          });
+
+          this.positionsList.splice(j, 1);
           isFindPosition = true;
+          lastArregned = i;
           break;
         }
       }
 
       if (!isFindPosition) {
+        this.lastArrangedBlank = lastArregned;
         //начинаем новый лист, располагаем там
+        this.currentPaper = this.currentPaper + 1;
         //делитим список допустимых позиций, начинаем приоритетный список с последней на размещенной фигуры
+        this.positionsList = [
+          {
+            x: this.paperParamsInput.allowanceBorder,
+            y: this.paperParamsInput.allowanceBorder
+          }
+        ];
+        break;
+      } else {
+        this.finalySolution = [this.currentSolution];
       }
 
       //так, пока каждая деталь не будет размещена, на выходе получаем blanksList с координатами
@@ -197,11 +318,12 @@ export default class CuttingChart extends Vue {
     this.positionsList = [
       {
         x: this.paperParamsInput.allowanceBorder,
-        y: this.paperParamsInput.allowanceBorder
+        y: this.paperParamsInput.allowanceBorder,
+        borderX: this.paperParams.width - this.paperParams.allowanceBorder
       }
     ];
     // количество итераций
-    let iteretionsCount = 10;
+    let iteretionsCount = 1;
 
     for (let i = 0; i < this.blanksList.length; i++) {
       solution.push(i);
@@ -209,11 +331,48 @@ export default class CuttingChart extends Vue {
 
     this.shuffle(solution);
 
-    this.blanksList = this.blanksListParams;
+    // this.blanksList = this.blanksListParams;
 
     while (iteretionsCount > 0) {
       iteretionsCount = iteretionsCount - 1;
       this.decodingProcedure(solution);
+      //поменять приоритетный список  с окрестностью
+      if (this.currentPaper < this.bestSolutionValue) {
+        this.bestSolutionValue = this.currentPaper;
+        this.bestSolution = this.currentSolution;
+      }
+    }
+
+    this.drawBestSolution();
+  }
+
+  drawBestSolution() {
+    for (let i = 0; i < this.currentPaper; i++) {
+      this.addCanvas();
+      let canvasElement: any = document.getElementById(`myCanvas${i}`);
+      canvasElement.width = this.paperParams.width;
+      canvasElement.height = this.paperParams.heigth;
+      // debugger
+
+      this.canvas = canvasElement;
+
+      let context = this.canvas.getContext("2d");
+      if (context) {
+        for (let j = 0; j < this.finalySolution[i].length; j++) {
+          context.strokeRect(
+            parseInt(this.finalySolution[i][j].x),
+            parseInt(this.finalySolution[i][j].y),
+            parseInt(this.finalySolution[i][j].width),
+            parseInt(this.finalySolution[i][j].height)
+          );
+
+          context.fillText(
+            String(j),
+            parseInt(this.finalySolution[i][j].x),
+            parseInt(this.finalySolution[i][j].y)
+          );
+        }
+      }
     }
   }
 

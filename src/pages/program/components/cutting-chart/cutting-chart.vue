@@ -201,8 +201,8 @@
       </div>
       <div class="canvas__wrapper">
         <div class="cutting-chart__canvas-wrapper">
-          <canvas id="myCanvas0" ref="canvas0" class="cutting-chart__canvas">
-          </canvas>
+          <!-- <canvas id="myCanvas0" ref="canvas0" class="cutting-chart__canvas">
+          </canvas> -->
         </div>
         <!-- <div id="myCanvas1" class="cutting-chart__canvas-wrapper">
               <canvas ref="canvas1" id="myCanvas1" class="cutting-chart__canvas">
