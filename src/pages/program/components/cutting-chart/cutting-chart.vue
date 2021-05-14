@@ -133,6 +133,18 @@
                 </button>
               </div>
             </div>
+            <div>
+              <button class="btn" type="info" width="100%" @click="load">
+                Загрузить
+              </button>
+              <input
+                id="downloadData"
+                ref="file"
+                type="file"
+                hidden
+                @change="loadData"
+              />
+            </div>
             <div class="params__item-table">
               <table
                 v-if="blanksList && blanksList.length"
@@ -173,6 +185,9 @@
           </button>
           <button @click="addCanvas">
             Добавить
+          </button>
+          <button @click="algorithmWork">
+            Запустить алгоритм
           </button>
         </template>
         <template v-else-if="currentTab === TABS.cutting && isShowCutting">

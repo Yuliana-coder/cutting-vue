@@ -92,6 +92,8 @@
 
 .params__item-table {
   width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .params__item-blanks-add-wrapper {

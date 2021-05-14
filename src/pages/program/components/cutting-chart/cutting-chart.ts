@@ -36,12 +36,32 @@ export default class CuttingChart extends Vue {
   isShowCutting: boolean = false;
   currentPaper = 0;
 
+  //список допустимых позиций
+  positionsList: any = [];
+
   get paperParams() {
     return {
       width: this.paperParamsInput.width * this.scaleFactor,
       heigth: this.paperParamsInput.height * this.scaleFactor,
       allowanceBorder: this.paperParamsInput.allowanceBorder * this.scaleFactor
     };
+  }
+
+  get allowanceBlankParams() {
+    return {
+      cut: this.allowanceBlank.cut * this.scaleFactor,
+      blankBorder: this.allowanceBlank.blankBorder * this.scaleFactor
+    };
+  }
+
+  get blanksListParams() {
+    return this.blanksList.map((item: any) => {
+      return {
+        width: item.width * this.scaleFactor,
+        height: item.height * this.scaleFactor,
+        id: this.blanksList.indexOf(item)
+      };
+    });
   }
 
   mounted() {
@@ -68,19 +88,14 @@ export default class CuttingChart extends Vue {
         Number(this.paperParamsInput.height)
       ) {
         this.scaleFactor = MAX_WIDTH_PAPER / this.paperParamsInput.width;
-        // console.log(this.scaleFactor, ">");
       } else {
         this.scaleFactor = MAX_HEIGHT_PAPER / this.paperParamsInput.height;
-        // console.log(this.scaleFactor, "<");
       }
     }
 
-    // console.log(this.scaleFactor);
     for (let i = 0; i < this.canvasCount; i++) {
       let canvasElement: any = document.getElementById(`myCanvas${i}`);
-      //   console.log(canvasElement.width);
       canvasElement.style.width = this.paperParams.width + "px";
-      //   console.log(canvasElement.width);
       canvasElement.style.height = this.paperParams.heigth + "px";
     }
 
@@ -139,5 +154,101 @@ export default class CuttingChart extends Vue {
     // this.$refs[`canvas${numberPaper}`] = document.getElementById(`myCanvas${this.canvasCount}`);
 
     this.canvasCount = this.canvasCount + 1;
+  }
+
+  shuffle(array) {
+    array.sort(() => Math.random() - 0.5);
+  }
+
+  isCanBeArranged() {
+    //проверка на возможность расположить заготовку в текущую позицию
+    //реализовать!!!!!!
+    return true;
+  }
+
+  decodingProcedure(solution) {
+    for (let i = 0; i < solution.length; i++) {
+      let isFindPosition = false;
+      for (let j = 0; j < this.positionsList.length; j++) {
+        if (this.isCanBeArranged()) {
+          this.blanksList[solution[i]].x = this.positionsList[j].x;
+          this.blanksList[solution[i]].y = this.positionsList[j].y;
+          isFindPosition = true;
+          break;
+        }
+      }
+
+      if (!isFindPosition) {
+        //начинаем новый лист, располагаем там
+        //делитим список допустимых позиций, начинаем приоритетный список с последней на размещенной фигуры
+      }
+
+      //так, пока каждая деталь не будет размещена, на выходе получаем blanksList с координатами
+      //и количество затраченных листов = целевая функция
+      //сравниваем с рекордами и при лучшем решении заменяем текущие лучшие, ищем окрестности и продожаем
+      //декодирующие процедуры
+    }
+  }
+
+  algorithmWork() {
+    // приоритетный список, первое решение - рандомный список заготовок
+    let solution: any = [];
+    // список доступных позиций, первая позиций - начало координат
+    this.positionsList = [
+      {
+        x: this.paperParamsInput.allowanceBorder,
+        y: this.paperParamsInput.allowanceBorder
+      }
+    ];
+    // количество итераций
+    let iteretionsCount = 10;
+
+    for (let i = 0; i < this.blanksList.length; i++) {
+      solution.push(i);
+    }
+
+    this.shuffle(solution);
+
+    this.blanksList = this.blanksListParams;
+
+    while (iteretionsCount > 0) {
+      iteretionsCount = iteretionsCount - 1;
+      this.decodingProcedure(solution);
+    }
+  }
+
+  get file() {
+    return <any>this.$refs["file"];
+  }
+
+  loadData() {
+    let file: any = this.file.files[0];
+    let reader: any = new FileReader();
+    reader.readAsText(file);
+    const program = this;
+    let arr: any = [];
+    reader.onload = function() {
+      if (!reader.result) {
+        alert("Вы не загрузили файл");
+      } else {
+        let data = JSON.stringify(reader.result);
+        let adder: any = 1;
+        reader.result.split(/\r?\n/).forEach(element => {
+          let elementArr: any = element.split(" ").map((item: any) => {
+            return Number(item);
+          });
+          arr.push(
+            Object({ width: elementArr[0], height: elementArr[1], id: adder })
+          );
+          adder = adder + 1;
+        });
+      }
+    };
+
+    this.blanksList = arr;
+  }
+
+  load() {
+    this.file.click();
   }
 }
