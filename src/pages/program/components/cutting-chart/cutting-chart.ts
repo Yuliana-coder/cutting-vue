@@ -49,24 +49,26 @@ export default class CuttingChart extends Vue {
 
   get paperParams() {
     return {
-      width: this.paperParamsInput.width * this.scaleFactor,
-      heigth: this.paperParamsInput.height * this.scaleFactor,
-      allowanceBorder: this.paperParamsInput.allowanceBorder * this.scaleFactor
+      width: Number(this.paperParamsInput.width * this.scaleFactor),
+      heigth: Number(this.paperParamsInput.height * this.scaleFactor),
+      allowanceBorder: Number(
+        this.paperParamsInput.allowanceBorder * this.scaleFactor
+      )
     };
   }
 
   get allowanceBlankParams() {
     return {
-      cut: this.allowanceBlank.cut * this.scaleFactor,
-      blankBorder: this.allowanceBlank.blankBorder * this.scaleFactor
+      cut: Number(this.allowanceBlank.cut * this.scaleFactor),
+      blankBorder: Number(this.allowanceBlank.blankBorder * this.scaleFactor)
     };
   }
 
   get blanksListParams() {
     return this.blanksList.map((item: any) => {
       return {
-        width: item.width * this.scaleFactor,
-        height: item.height * this.scaleFactor,
+        width: Number(item.width * this.scaleFactor),
+        height: Number(item.height * this.scaleFactor),
         id: this.blanksList.indexOf(item)
       };
     });
@@ -88,16 +90,18 @@ export default class CuttingChart extends Vue {
   countScale() {
     this.scaleFactor = 1;
     if (
-      this.paperParamsInput.width > MAX_WIDTH_PAPER ||
-      this.paperParamsInput.height > MAX_HEIGHT_PAPER
+      Number(this.paperParamsInput.width) > MAX_WIDTH_PAPER ||
+      Number(this.paperParamsInput.height) > MAX_HEIGHT_PAPER
     ) {
       if (
         Number(this.paperParamsInput.width) >
         Number(this.paperParamsInput.height)
       ) {
-        this.scaleFactor = MAX_WIDTH_PAPER / this.paperParamsInput.width;
+        this.scaleFactor =
+          MAX_WIDTH_PAPER / Number(this.paperParamsInput.width);
       } else {
-        this.scaleFactor = MAX_HEIGHT_PAPER / this.paperParamsInput.height;
+        this.scaleFactor =
+          MAX_HEIGHT_PAPER / Number(this.paperParamsInput.height);
       }
     }
 
@@ -159,8 +163,6 @@ export default class CuttingChart extends Vue {
     let canvasList = document.querySelector(".canvas__wrapper");
     if (canvasList) canvasList.innerHTML += newPaper;
 
-    // this.$refs[`canvas${numberPaper}`] = document.getElementById(`myCanvas${this.canvasCount}`);
-
     this.canvasCount = this.canvasCount + 1;
   }
 
@@ -173,7 +175,7 @@ export default class CuttingChart extends Vue {
     //проверка на возможность расположить заготовку в текущую позицию
     let isCan: any = false;
     //если ширина заготовки не выходит за правую границу
-    if (position.x + blank.width > position.borderX) {
+    if (position.x + blank.width < position.borderX) {
       //если ширина заготовки не выходит за верхнюю границу
       let isHaveBottomElement: any = false;
       //если под заготовкой есть детали, то в пределах ширины нельзя персечься с заготовкой
@@ -232,9 +234,9 @@ export default class CuttingChart extends Vue {
   }
 
   decodingProcedure(solution) {
-    this.currentSolution = this.blanksListParams;
+    //список заготовок текущего листа
+    this.currentSolution = [];
     // тот же самый список деталей, но уже с координатами для отрисовки
-    let lastArregned = 0;
     for (let i = this.lastArrangedBlank; i < solution.length; i++) {
       let isFindPosition = false;
 
@@ -244,64 +246,75 @@ export default class CuttingChart extends Vue {
         //если высота зготовки не выходит за нижнюю границу
         if (
           this.isCanBeArranged(
-            this.currentSolution[solution[i]],
+            this.blanksListParams[solution[i]],
             this.positionsList[j]
           )
         ) {
-          this.currentSolution[solution[i]].x = this.positionsList[j].x;
-          this.currentSolution[solution[i]].y = this.positionsList[j].y;
-          //правая заготовка
-          this.positionsList.push({
-            x: (
-              Number(this.positionsList[j].x) +
-              this.currentSolution[solution[i]].width +
-              this.allowanceBlankParams.cut
-            ).toString(),
-            y: this.currentSolution[solution[i]].y,
-            borderX: this.rigthBorderByTopBlank(
-              this.positionsList[j].x +
-                this.currentSolution[solution[i]].width +
-                this.allowanceBlankParams.cut,
-              this.currentSolution[solution[i]].y
-            )
+          this.currentSolution.push({
+            x: this.positionsList[j].x,
+            y: this.positionsList[j].y,
+            width: this.blanksListParams[solution[i]].width,
+            height: this.blanksListParams[solution[i]].height,
+            id: this.blanksListParams[solution[i]].id
           });
+
           //нижняя заготовка
           this.positionsList.push({
-            x: this.currentSolution[solution[i]].x,
-            y: (
-              Number(this.positionsList[j].y) +
-              this.currentSolution[solution[i]].height +
-              this.allowanceBlankParams.cut
-            ).toString(),
+            x: this.positionsList[j].x,
+            y:
+              this.positionsList[j].y +
+              this.blanksListParams[solution[i]].height +
+              this.allowanceBlankParams.cut,
             borderX: this.rigthBorderByTopBlank(
               this.positionsList[j].x,
               this.positionsList[j].y +
-                this.currentSolution[solution[i]].height +
+                this.blanksListParams[solution[i]].height +
                 this.allowanceBlankParams.cut
+            )
+          });
+
+          //правая заготовка
+          this.positionsList.push({
+            x:
+              this.positionsList[j].x +
+              this.blanksListParams[solution[i]].width +
+              this.allowanceBlankParams.cut,
+            y: this.positionsList[j].y,
+            borderX: this.rigthBorderByTopBlank(
+              this.positionsList[j].x +
+                this.blanksListParams[solution[i]].width +
+                this.allowanceBlankParams.cut,
+              this.positionsList[j].y
             )
           });
 
           this.positionsList.splice(j, 1);
           isFindPosition = true;
-          lastArregned = i;
           break;
         }
       }
 
+      //если для текущей заготовки не нашлось позиции
       if (!isFindPosition) {
-        this.lastArrangedBlank = lastArregned;
         //начинаем новый лист, располагаем там
         this.currentPaper = this.currentPaper + 1;
         //делитим список допустимых позиций, начинаем приоритетный список с последней на размещенной фигуры
         this.positionsList = [
           {
-            x: this.paperParamsInput.allowanceBorder,
-            y: this.paperParamsInput.allowanceBorder
+            x: this.paperParams.allowanceBorder,
+            y: this.paperParams.allowanceBorder,
+            borderX: this.paperParams.width - this.paperParams.allowanceBorder
           }
         ];
+        if (this.currentSolution && this.currentSolution.length) {
+          this.finalySolution.push(this.currentSolution);
+        }
+        this.lastArrangedBlank = i;
         break;
-      } else {
-        this.finalySolution = [this.currentSolution];
+      } else if (i === solution.length - 1) {
+        if (this.currentSolution && this.currentSolution.length) {
+          this.finalySolution.push(this.currentSolution);
+        }
       }
 
       //так, пока каждая деталь не будет размещена, на выходе получаем blanksList с координатами
@@ -317,47 +330,58 @@ export default class CuttingChart extends Vue {
     // список доступных позиций, первая позиций - начало координат
     this.positionsList = [
       {
-        x: this.paperParamsInput.allowanceBorder,
-        y: this.paperParamsInput.allowanceBorder,
+        x: this.paperParams.allowanceBorder,
+        y: this.paperParams.allowanceBorder,
         borderX: this.paperParams.width - this.paperParams.allowanceBorder
       }
     ];
     // количество итераций
     let iteretionsCount = 1;
 
-    for (let i = 0; i < this.blanksList.length; i++) {
+    for (let i = 0; i < this.blanksListParams.length; i++) {
       solution.push(i);
     }
 
     this.shuffle(solution);
 
-    // this.blanksList = this.blanksListParams;
-
     while (iteretionsCount > 0) {
       iteretionsCount = iteretionsCount - 1;
-      this.decodingProcedure(solution);
+      while (this.finalySolutionLength != this.blanksListParams.length) {
+        this.decodingProcedure(solution);
+      }
       //поменять приоритетный список  с окрестностью
       if (this.currentPaper < this.bestSolutionValue) {
         this.bestSolutionValue = this.currentPaper;
-        this.bestSolution = this.currentSolution;
+        this.bestSolution = this.finalySolution;
       }
     }
 
     this.drawBestSolution();
   }
 
+  get finalySolutionLength() {
+    let length = 0;
+
+    this.finalySolution.forEach(element => {
+      length = length + element.length;
+    });
+
+    return length;
+  }
+
   drawBestSolution() {
     for (let i = 0; i < this.currentPaper; i++) {
       this.addCanvas();
+    }
+    for (let i = 0; i < this.currentPaper; i++) {
       let canvasElement: any = document.getElementById(`myCanvas${i}`);
       canvasElement.width = this.paperParams.width;
       canvasElement.height = this.paperParams.heigth;
-      // debugger
 
       this.canvas = canvasElement;
 
       let context = this.canvas.getContext("2d");
-      if (context) {
+      if (context && this.finalySolution[i] && this.finalySolution[i].length) {
         for (let j = 0; j < this.finalySolution[i].length; j++) {
           context.strokeRect(
             parseInt(this.finalySolution[i][j].x),
