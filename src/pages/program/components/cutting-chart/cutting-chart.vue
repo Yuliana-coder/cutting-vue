@@ -94,6 +94,20 @@
                 </div> -->
             </div>
           </div>
+          <div class="params__item">
+            <div class="params-field">
+              <label class="params-field-label" for="iteretions-input"
+                >Количество итераций</label
+              >
+              <input
+                v-model="iteretionsCount"
+                min="1"
+                type="number"
+                name="iteretions-input"
+                class="default-input"
+              />
+            </div>
+          </div>
           <div class="params__item params__item-blanks">
             <div class="params__item-blanks-add-wrapper">
               <div class="params-item-blanks-add-field">
@@ -176,17 +190,17 @@
               </table>
             </div>
           </div>
-          <button
+          <!-- <button
             :disabled="!isNotAllFieldsFilled"
             class="params-btn"
             @click="countScale"
-          >
-            построить
-          </button>
-          <button @click="addCanvas">
+          > -->
+          <!-- построить
+          </button> -->
+          <!-- <button @click="addCanvas">
             Добавить
-          </button>
-          <button @click="algorithmWork">
+          </button> -->
+          <button :disabled="!isNotAllFieldsFilled" @click="algorithmWork">
             Запустить алгоритм
           </button>
         </template>
@@ -200,6 +214,9 @@
         </template>
       </div>
       <div class="canvas__wrapper">
+        <div v-if="isLoaded">
+          Алгоритм выполняется...
+        </div>
         <!-- <div class="cutting-chart__canvas-wrapper">
           <canvas id="myCanvas0" ref="canvas0" class="cutting-chart__canvas">
           </canvas>
