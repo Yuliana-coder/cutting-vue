@@ -214,6 +214,7 @@
         </template>
       </div>
       <div class="canvas__wrapper">
+        {{ isLoaded }}
         <div v-if="isLoaded">
           Алгоритм выполняется...
         </div>

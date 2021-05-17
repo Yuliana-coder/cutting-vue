@@ -378,8 +378,22 @@ export default class CuttingChart extends Vue {
       newSolution[index] = element;
       neighborhood.push(newSolution);
     }
-    this.shuffle(neighborhood);
-    return neighborhood.slice(0, this.randomInteger(0, solution.length - 1));
+    let filteredNeighorhoodList: any = [];
+    if (this.tabuList && this.tabuList.length) {
+      this.tabuList.forEach(element => {
+        filteredNeighorhoodList = neighborhood
+          .slice(0, this.randomInteger(0, solution.length - 1))
+          .filter((item: any) => {
+            return element.join("") != item.join("");
+          });
+      });
+    } else {
+      filteredNeighorhoodList = neighborhood.slice(
+        0,
+        this.randomInteger(0, solution.length - 1)
+      );
+    }
+    return filteredNeighorhoodList;
   }
 
   algorithmWork() {
@@ -447,6 +461,7 @@ export default class CuttingChart extends Vue {
         if (this.currentPaper < this.bestSolutionValue) {
           this.bestSolutionValue = this.currentPaper;
           this.bestSolution = this.finalySolution;
+          this.tabuList.push(solution);
         }
       }
     }
