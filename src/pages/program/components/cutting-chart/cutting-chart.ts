@@ -35,7 +35,7 @@ export default class CuttingChart extends Vue {
   blanksCount: number = 0;
   isShowCutting: boolean = false;
   currentPaper: any = 1;
-  bestSolutionValue: any = 1;
+  bestSolutionValue: any = 1000000000;
   bestSolution: any = [];
   tabuList: any = [];
   currentSolution: any = []; //список деталей с координатами позиций для отрисовки
@@ -69,22 +69,22 @@ export default class CuttingChart extends Vue {
       return {
         width: Number(item.width * this.scaleFactor),
         height: Number(item.height * this.scaleFactor),
-        id: this.blanksList.indexOf(item)
+        id: item.id
       };
     });
   }
 
   mounted() {
-    //this.canvas = <HTMLCanvasElement>this.$refs.canvas0;
-    //this.canvas = document.getElementById(`myCanvas1`);
-    //this.canvas.width = 900;
-    //this.canvas.height = 555;
-    //let context = this.canvas.getContext("2d");
-    //if (context) {
-    //context.strokeRect(0, 0, 50, 50);
-    //context.strokeRect(55, 0, 50, 100);
-    //context.fillText(String(2), 55, 15);
-    //}
+    // this.canvas = document.getElementById(`myCanvas0`);
+    // this.canvas.width = 900;
+    // this.canvas.height = 555;
+    // let context = this.canvas.getContext("2d");
+    // if (context) {
+    // context.strokeRect(0, 0, 50, 50);
+    // context.strokeRect(55, 0, 50, 100);
+    // context.font = 'bold 24px serif';
+    // context.fillText(String(2), 65, 35);
+    // }
   }
 
   //подсчет коэффициента масштабирования
@@ -171,37 +171,69 @@ export default class CuttingChart extends Vue {
     array.sort(() => Math.random() - 0.5);
   }
 
-  //определяет может ли заготовка быть размещена на данную похицию
-  isCanBeArranged(blank, position) {
-    //проверка на возможность расположить заготовку в текущую позицию
-    let isCan: any = false;
-    //если ширина заготовки не выходит за правую границу
+  isNotCrossRigthBlanks(blank, position) {
+    let isCross: any = false;
+
     if (
       position.x + blank.width + this.allowanceBlankParams.cut <
       position.borderX
     ) {
+      for (let i = 0; i < this.currentSolution.length; i++) {
+        //смотрим на пересечение заготовок на однов вертикальном уровне
+        if (
+          position.y >= this.currentSolution[i].y &&
+          position.y <=
+            this.currentSolution[i].y + this.currentSolution[i].height
+        ) {
+          if (
+            this.currentSolution[i].x > position.x &&
+            position.x + blank.width + this.allowanceBlankParams.cut >
+              this.currentSolution[i].x
+          ) {
+            isCross = true;
+            break;
+          }
+        }
+      }
+    } else {
+      isCross = true;
+    }
+
+    return isCross;
+  }
+
+  //определяет может ли заготовка быть размещена на данную позицию
+  isCanBeArranged(blank, position) {
+    //проверка на возможность расположить заготовку в текущую позицию
+    let isCan: any = false;
+    //если ширина заготовки не выходит за правую границу
+    if (!this.isNotCrossRigthBlanks(blank, position)) {
       //если ширина заготовки не выходит за верхнюю границу
       let isHaveBottomElement: any = false;
+
       //если под заготовкой есть детали, то в пределах ширины нельзя персечься с заготовкой
-      this.currentSolution.forEach(element => {
-        if (element.y > position.y) {
+      for (let i = 0; i < this.currentSolution.length; i++) {
+        if (this.currentSolution[i].y > position.y) {
           //смотрим на зготовки с которыми можем персечься, то есть в пределах ширины
           if (
-            position.x >= element.x &&
-            position.x < element.x + element.width
+            position.x >= this.currentSolution[i].x &&
+            position.x <=
+              this.currentSolution[i].x + this.currentSolution[i].width
           ) {
             isHaveBottomElement = true;
             if (
-              element.y >
+              this.currentSolution[i].y >
               position.y + blank.height + this.allowanceBlankParams.cut
             ) {
               isCan = true;
             } else {
               isCan = false;
+              break;
             }
           }
         }
-      });
+      }
+
       //если под текущей позицией нет заготовок, то смотрим не выходит ли заготовки за пределы листа по высоте
       if (!isHaveBottomElement) {
         if (
@@ -260,7 +292,7 @@ export default class CuttingChart extends Vue {
             y: this.positionsList[j].y,
             width: this.blanksListParams[solution[i]].width,
             height: this.blanksListParams[solution[i]].height,
-            id: this.blanksListParams[solution[i]].id
+            id: solution[i]
           });
 
           //нижняя заготовка
@@ -289,7 +321,10 @@ export default class CuttingChart extends Vue {
 
           this.positionsList.splice(j, 1);
           //отсортировать по y приоритетный список
-          this.positionsList.sort(this.byField("y")).reverse();
+          // this.positionsList.sort(this.byField("y")).reverse();
+          this.positionsList = this.positionsList.sort(function(a, b) {
+            return a.y - b.y || a.x - b.x;
+          });
           isFindPosition = true;
           break;
         }
@@ -340,7 +375,7 @@ export default class CuttingChart extends Vue {
     let iteretionsCount = 1;
 
     for (let i = 0; i < this.blanksListParams.length; i++) {
-      solution.push(i);
+      solution.push(this.blanksListParams[i].id - 1);
     }
 
     this.shuffle(solution);
@@ -350,6 +385,7 @@ export default class CuttingChart extends Vue {
       while (this.finalySolutionLength != this.blanksListParams.length) {
         this.decodingProcedure(solution);
       }
+
       //поменять приоритетный список  с окрестностью
       if (this.currentPaper < this.bestSolutionValue) {
         this.bestSolutionValue = this.currentPaper;
@@ -382,19 +418,22 @@ export default class CuttingChart extends Vue {
       this.canvas = canvasElement;
 
       let context = this.canvas.getContext("2d");
-      if (context && this.finalySolution[i] && this.finalySolution[i].length) {
-        for (let j = 0; j < this.finalySolution[i].length; j++) {
+      context.font = "48px";
+      if (context && this.bestSolution[i] && this.bestSolution[i].length) {
+        for (let j = 0; j < this.bestSolution[i].length; j++) {
           context.strokeRect(
-            parseInt(this.finalySolution[i][j].x),
-            parseInt(this.finalySolution[i][j].y),
-            parseInt(this.finalySolution[i][j].width),
-            parseInt(this.finalySolution[i][j].height)
+            parseInt(this.bestSolution[i][j].x),
+            parseInt(this.bestSolution[i][j].y),
+            parseInt(this.bestSolution[i][j].width),
+            parseInt(this.bestSolution[i][j].height)
           );
 
+          context.font = "bold 24px serif";
+
           context.fillText(
-            String(j),
-            parseInt(this.finalySolution[i][j].x),
-            parseInt(this.finalySolution[i][j].y)
+            String(this.bestSolution[i][j].id + 1),
+            parseInt(this.bestSolution[i][j].x + 20),
+            parseInt(this.bestSolution[i][j].y + 20)
           );
         }
       }

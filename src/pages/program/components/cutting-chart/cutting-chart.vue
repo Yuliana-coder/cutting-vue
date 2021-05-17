@@ -163,7 +163,7 @@
                 </thead>
                 <tbody>
                   <tr v-for="(blank, key) in blanksList" :key="key">
-                    <td>{{ key + 1 }}</td>
+                    <td>{{ blank.id }}</td>
                     <td>{{ blank.width }}</td>
                     <td>{{ blank.height }}</td>
                     <td>
@@ -200,10 +200,10 @@
         </template>
       </div>
       <div class="canvas__wrapper">
-        <div class="cutting-chart__canvas-wrapper">
-          <!-- <canvas id="myCanvas0" ref="canvas0" class="cutting-chart__canvas">
-          </canvas> -->
-        </div>
+        <!-- <div class="cutting-chart__canvas-wrapper">
+          <canvas id="myCanvas0" ref="canvas0" class="cutting-chart__canvas">
+          </canvas>
+        </div> -->
         <!-- <div id="myCanvas1" class="cutting-chart__canvas-wrapper">
               <canvas ref="canvas1" id="myCanvas1" class="cutting-chart__canvas">
               </canvas>
