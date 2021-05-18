@@ -200,24 +200,36 @@
           <!-- <button @click="addCanvas">
             Добавить
           </button> -->
-          <button :disabled="!isNotAllFieldsFilled" @click="algorithmWork">
+          <button :disabled="!isNotAllFieldsFilled" @click="algorithmStart">
             Запустить алгоритм
           </button>
         </template>
         <template v-else-if="currentTab === TABS.cutting && isShowCutting">
           Раскрой
-          <!-- <ul>
-              <li @click="currentPaper = cutIndex" v-for="(cutIndex, key1) in blanksCount" :key="key1">
-                {{cutIndex}} карта
-              </li>
-            </ul> -->
+          <ul>
+            <li
+              :class="{ 'params__blank-list-item_active': showPaper === 0 }"
+              @click="drawBestSolution(0)"
+            >
+              Все
+            </li>
+            <li
+              v-for="(cutIndex, key1) in bestSolutionValue"
+              :key="key1"
+              :class="{
+                'params__blank-list-item_active': showPaper === key1 + 1
+              }"
+              @click="drawPaper(key1 + 1)"
+            >
+              {{ key1 + 1 }} карта
+            </li>
+          </ul>
         </template>
       </div>
+      <div v-if="isLoaded" class="params__loaded">
+        <div>{{ isLoaded }}</div>
+      </div>
       <div class="canvas__wrapper">
-        {{ isLoaded }}
-        <div v-if="isLoaded">
-          Алгоритм выполняется...
-        </div>
         <!-- <div class="cutting-chart__canvas-wrapper">
           <canvas id="myCanvas0" ref="canvas0" class="cutting-chart__canvas">
           </canvas>

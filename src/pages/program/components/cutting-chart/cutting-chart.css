@@ -125,4 +125,14 @@ td, th {
 .blanks__table {
   width: 100%;
   border-collapse: collapse;
+} 
+
+.params__loaded {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.params__blank-list-item_active {
+  background-color: lightslategray;
 }

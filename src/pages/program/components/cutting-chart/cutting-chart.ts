@@ -34,6 +34,8 @@ export default class CuttingChart extends Vue {
   blanksList: any[] = []; //список деталей
   blanksCount: number = 0;
   isShowCutting: boolean = false;
+  //текущий отображенный лист (0 - значит отображены все карты одновременны)
+  showPaper: any = 0;
   currentPaper: any = 1;
   bestSolutionValue: any = 0;
   bestSolution: any = [];
@@ -48,7 +50,7 @@ export default class CuttingChart extends Vue {
   lastArrangedBlank: any = 0;
   iteretionsCount: any = 0;
   partNeighborhood: any = [];
-  isLoaded: any = false;
+  isLoaded: any = "";
 
   get paperParams() {
     return {
@@ -396,8 +398,24 @@ export default class CuttingChart extends Vue {
     return filteredNeighorhoodList;
   }
 
+  algorithmStart() {
+    this.isLoaded = "Алгоритм выполняется...";
+    let promise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        this.algorithmWork();
+        resolve("");
+      }, 1);
+    });
+    promise
+      .then(() => {
+        this.isLoaded = "";
+      })
+      .catch(() => {
+        this.isLoaded = "Прозишла ошибка";
+      });
+  }
+
   algorithmWork() {
-    this.isLoaded = true;
     this.countScale();
     //приоритетный список, первое решение - рандомный список заготовок
     let solution: any = [];
@@ -466,8 +484,7 @@ export default class CuttingChart extends Vue {
       }
     }
 
-    this.drawBestSolution();
-    this.isLoaded = false;
+    this.drawBestSolution(0);
   }
 
   get finalySolutionLength() {
@@ -480,7 +497,11 @@ export default class CuttingChart extends Vue {
     return length;
   }
 
-  drawBestSolution() {
+  drawBestSolution(showPaper: any) {
+    this.canvasCount = 0;
+    this.showPaper = showPaper;
+    let canvasList = document.querySelector(".canvas__wrapper");
+    if (canvasList) canvasList.innerHTML = "";
     for (let i = 0; i < this.bestSolutionValue; i++) {
       this.addCanvas();
     }
@@ -529,6 +550,66 @@ export default class CuttingChart extends Vue {
               this.allowanceBlankParams.blankBorder
           );
         }
+      }
+    }
+  }
+
+  drawPaper(showPaper: any) {
+    this.canvasCount = 0;
+    this.showPaper = showPaper;
+    let canvasList = document.querySelector(".canvas__wrapper");
+    if (canvasList) canvasList.innerHTML = "";
+    this.addCanvas();
+
+    let canvasElement: any = document.getElementById(`myCanvas0`);
+    canvasElement.width = this.paperParams.width;
+    canvasElement.height = this.paperParams.height;
+
+    this.canvas = canvasElement;
+
+    let context = this.canvas.getContext("2d");
+    context.font = "48px";
+    if (
+      context &&
+      this.bestSolution[showPaper - 1] &&
+      this.bestSolution[showPaper - 1].length
+    ) {
+      context.strokeRect(
+        this.paperParams.allowanceBorder,
+        this.paperParams.allowanceBorder,
+        this.paperParams.width - 2 * this.paperParams.allowanceBorder,
+        this.paperParams.height - 2 * this.paperParams.allowanceBorder
+      );
+      for (let j = 0; j < this.bestSolution[showPaper - 1].length; j++) {
+        context.setLineDash([]);
+        context.strokeRect(
+          this.bestSolution[showPaper - 1][j].x,
+          this.bestSolution[showPaper - 1][j].y,
+          this.bestSolution[showPaper - 1][j].width,
+          this.bestSolution[showPaper - 1][j].height
+        );
+
+        context.setLineDash([6]);
+        context.strokeRect(
+          this.bestSolution[showPaper - 1][j].x +
+            this.allowanceBlankParams.blankBorder,
+          this.bestSolution[showPaper - 1][j].y +
+            this.allowanceBlankParams.blankBorder,
+          this.bestSolution[showPaper - 1][j].width -
+            2 * this.allowanceBlankParams.blankBorder,
+          this.bestSolution[showPaper - 1][j].height -
+            2 * this.allowanceBlankParams.blankBorder
+        );
+
+        context.font = "bold 24px serif";
+
+        context.fillText(
+          String(this.bestSolution[showPaper - 1][j].id + 1),
+          this.bestSolution[showPaper - 1][j].x + 20,
+          this.bestSolution[showPaper - 1][j].y +
+            20 +
+            this.allowanceBlankParams.blankBorder
+        );
       }
     }
   }

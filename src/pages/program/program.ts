@@ -6,4 +6,6 @@ import CuttingChart from "@/pages/program/components/cutting-chart/cutting-chart
     CuttingChart
   }
 })
-export default class Program extends Vue {}
+export default class Program extends Vue {
+  isReport: any = true;
+}
