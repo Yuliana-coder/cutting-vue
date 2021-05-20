@@ -11,3 +11,20 @@
   border-radius: 7px;
   padding: 7px;
 }
+
+.btn {
+  height: 35px;
+  background-color: white;
+  border-radius: 5px;
+  border: 2px solid gray;
+  font-weight: bold;
+  padding: 0 10px;
+}
+
+.btn:hover {
+  background-color: lightgray;
+}
+
+.btn:hover:disabled {
+  background-color: white;
+}

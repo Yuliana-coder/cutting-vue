@@ -1,8 +1,10 @@
 <template>
   <main class="program">
-    <div class="program-settings">
-      <button v-if="isReport">Отчет</button>
-    </div>
+    <!-- <div class="program-settings">
+      <div>
+        <button v-if="isReport">Отчет</button>
+      </div>
+    </div> -->
     <div class="program-cutting-chart">
       <CuttingChart />
     </div>

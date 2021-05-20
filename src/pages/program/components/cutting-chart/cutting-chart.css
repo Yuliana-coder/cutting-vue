@@ -1,3 +1,7 @@
+.cutting-chart {
+  position: relative;
+}
+
 .cutting-chart_settings-wrapper {
   width: 100%;
   padding: 20px 0;
@@ -127,6 +131,14 @@ td, th {
   border-collapse: collapse;
 } 
 
+.blanks__table_body_row_error {
+  background-color: tomato;
+}
+
+.blanks__error-text {
+  color: red;
+}
+
 .params__loaded {
   width: 100%;
   display: flex;
@@ -136,3 +148,65 @@ td, th {
 .params__blank-list-item_active {
   background-color: lightslategray;
 }
+
+/*Панель управления*/
+.cutting-chart-settings {
+  display: flex;
+  padding: 10px 20px;
+  height: 55px;
+  justify-content: space-between;
+}
+
+/*Модальное окно с данными*/
+
+.cutting-chart__modal {
+  position: absolute;
+  left: 50%;
+  top: 200px;
+  min-height: 300px;
+  min-width: 500px;
+  transform: translate(-200px, -50%);
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  padding: 15px 30px 30px 30px;
+  border-radius: 10px;
+  z-index: 100;
+}
+
+.cutting-chart__modal-btn {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cutting-chart__modal-btn-close {
+  background-image: url('../../../../assets/img/icons/close-black.svg');
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border: none;
+  opacity: 0.8;
+}
+
+.cutting-chart__modal-btn-close:hover {
+  opacity: 1;
+}
+
+/*Модальное окно warning*/
+.cutting-chart__modal-warning-wrapper {
+  width: 100%;
+  min-height: 300px;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.cutting-chart__modal-warning-wrapper-text {
+  margin-bottom: 15px;
+}
+
+.cutting-chart__modal-warning-wrapper-btns-item {
+  margin: 0 10px;
+}
+
+/*--Панель управления--*/

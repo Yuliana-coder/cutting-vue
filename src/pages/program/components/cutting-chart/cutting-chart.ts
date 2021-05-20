@@ -11,6 +11,10 @@ export default class CuttingChart extends Vue {
     cutting: 2
   };
 
+  //панель управления
+  isShowReport: any = false; //отобразить отчет
+  isShowWarning: any = false; //отобразить предупреждение об очистке данных и поля
+
   currentTab = this.TABS.params;
 
   canvas: any = null;
@@ -52,6 +56,11 @@ export default class CuttingChart extends Vue {
   partNeighborhood: any = [];
   isLoaded: any = "";
 
+  error = {
+    inputData: false, // ошибка ввода данных, если деталь больше, чем лист
+    itaretions: false
+  };
+
   get paperParams() {
     return {
       width: Number(this.paperParamsInput.width * this.scaleFactor),
@@ -83,6 +92,33 @@ export default class CuttingChart extends Vue {
     });
   }
 
+  get koeffCutting() {
+    let koeff: any = 0;
+    let blanksArea: number = 0;
+
+    for (let i = 0; i < this.bestSolutionValue; i++) {
+      for (let j = 0; j < this.bestSolution[i].length; j++) {
+        blanksArea =
+          Number(blanksArea) +
+          Number(
+            this.bestSolution[i][j].width +
+              this.allowanceBlankParams.blankBorder
+          ) *
+            (this.bestSolution[i][j].height +
+              this.allowanceBlankParams.blankBorder);
+      }
+    }
+
+    //какую часть занимают детали на листах
+    koeff =
+      blanksArea /
+      (this.bestSolutionValue *
+        this.paperParams.width *
+        this.paperParams.height);
+
+    return Math.floor(koeff * 1000) / 1000;
+  }
+
   mounted() {
     // this.canvas = document.getElementById(`myCanvas0`);
     // this.canvas.width = 900;
@@ -94,6 +130,84 @@ export default class CuttingChart extends Vue {
     // context.font = 'bold 24px serif';
     // context.fillText(String(2), 65, 35);
     // }
+  }
+
+  isErrorBlank(blank: any) {
+    return (
+      blank.width +
+        this.allowanceBlankParams.blankBorder * 2 +
+        this.allowanceBlankParams.cut >
+        this.paperParams.width - this.paperParams.allowanceBorder * 2 ||
+      blank.height +
+        this.allowanceBlankParams.blankBorder * 2 +
+        this.allowanceBlankParams.cut >
+        this.paperParams.height - this.paperParams.allowanceBorder * 2
+    );
+  }
+
+  get isHaveBiggerBlank() {
+    let res: any = false;
+    for (let i = 0; i < this.blanksList.length; i++) {
+      if (
+        this.blanksList[i].width +
+          this.allowanceBlankParams.blankBorder * 2 +
+          this.allowanceBlankParams.cut >
+          this.paperParams.width - this.paperParams.allowanceBorder * 2 ||
+        this.blanksList[i].height +
+          this.allowanceBlankParams.blankBorder * 2 +
+          this.allowanceBlankParams.cut >
+          this.paperParams.height - this.paperParams.allowanceBorder * 2
+      ) {
+        res = true;
+        break;
+      }
+    }
+    return res;
+  }
+
+  clearData() {
+    let canvasList = document.querySelector(".canvas__wrapper");
+    if (canvasList) canvasList.innerHTML = "";
+    this.isShowReport = false;
+
+    this.currentTab = this.TABS.params;
+
+    this.canvas = null;
+    this.scaleFactor = 1;
+    this.canvasCount = 0;
+    this.paperParamsInput = {
+      width: 0,
+      height: 0,
+      allowanceBorder: 0
+    };
+    this.allowanceBlank = {
+      cut: 0,
+      blankBorder: 0
+    };
+    this.blankParamsInput = {
+      width: 0,
+      height: 0
+    };
+
+    this.blanksList = [];
+    this.blanksCount = 0;
+    this.isShowCutting = false;
+
+    this.showPaper = 0;
+    this.currentPaper = 1;
+    this.bestSolutionValue = 0;
+    this.bestSolution = [];
+    this.tabuList = [];
+    this.currentSolution = [];
+    this.finalySolution = [];
+
+    this.positionsList = [];
+
+    this.lastArrangedBlank = 0;
+    this.iteretionsCount = 0;
+    this.partNeighborhood = [];
+    this.isLoaded = "";
+    this.isShowWarning = false;
   }
 
   //подсчет коэффициента масштабирования
@@ -160,7 +274,8 @@ export default class CuttingChart extends Vue {
         this.paperParamsInput.height &&
         this.blanksList &&
         this.blanksList.length &&
-        this.iteretionsCount
+        this.iteretionsCount &&
+        !this.isHaveBiggerBlank
     );
   }
 
@@ -185,7 +300,7 @@ export default class CuttingChart extends Vue {
     let isCross: any = false;
 
     if (
-      position.x + blank.width + this.allowanceBlankParams.cut <
+      position.x + blank.width + this.allowanceBlankParams.cut <=
       position.borderX
     ) {
       for (let i = 0; i < this.currentSolution.length; i++) {
@@ -197,8 +312,7 @@ export default class CuttingChart extends Vue {
         ) {
           if (
             this.currentSolution[i].x >= position.x &&
-            position.x + blank.width + this.allowanceBlankParams.cut >
-              this.currentSolution[i].x
+            position.x + blank.width >= this.currentSolution[i].x
           ) {
             isCross = true;
             break;
@@ -223,7 +337,7 @@ export default class CuttingChart extends Vue {
 
       //если под заготовкой есть детали, то в пределах ширины нельзя персечься с заготовкой
       for (let i = 0; i < this.currentSolution.length; i++) {
-        if (this.currentSolution[i].y > position.y) {
+        if (this.currentSolution[i].y >= position.y) {
           //смотрим на зготовки с которыми можем персечься, то есть в пределах ширины
           if (
             position.x >= this.currentSolution[i].x &&
@@ -612,6 +726,32 @@ export default class CuttingChart extends Vue {
         );
       }
     }
+  }
+
+  /*Характеристики листа с раскроем */
+  get descriptionPaper() {
+    let paper: any = this.bestSolution[Number(this.showPaper) - 1];
+    let description: any = {
+      fullness: 0
+    };
+
+    for (let i = 0; i < paper.length; i++) {
+      description.fullness =
+        description.fullness +
+        (paper[i].width + +this.allowanceBlankParams.blankBorder) *
+          (paper[i].height + this.allowanceBlankParams.blankBorder);
+    }
+
+    description.fullness =
+      Math.floor(
+        (description.fullness /
+          (this.paperParams.width * this.paperParams.height)) *
+          100000
+      ) /
+        1000 +
+      "%";
+
+    return description;
   }
 
   randomInteger(min, max) {

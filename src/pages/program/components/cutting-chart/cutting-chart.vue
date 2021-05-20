@@ -1,16 +1,67 @@
 <template>
   <div class="cutting-chart">
+    <div v-if="isShowReport || isShowWarning" class="cutting-chart__modal">
+      <template v-if="isShowReport">
+        <div class="cutting-chart__modal-btn">
+          <button
+            class="cutting-chart__modal-btn-close"
+            @click="isShowReport = false"
+          ></button>
+        </div>
+        <div class="cutting-chart__modal-info">
+          Количество листов для раскроя: {{ bestSolutionValue }}
+          <div>
+            Показатель эффективности раскроя - коэффициент раскроя - Кр
+            <div>Кр: {{ koeffCutting }}</div>
+          </div>
+        </div>
+      </template>
+      <template v-else-if="isShowWarning">
+        <div class="cutting-chart__modal-warning-wrapper">
+          <div class="cutting-chart__modal-warning-wrapper-text">
+            Вы уверены, что хотите очистить данные?
+          </div>
+          <div class="cutting-chart__modal-warning-wrapper-btns">
+            <button
+              class="btn cutting-chart__modal-warning-wrapper-btns-item"
+              @click="clearData"
+            >
+              Подтвердить
+            </button>
+            <button
+              class="btn cutting-chart__modal-warning-wrapper-btns-item"
+              @click="isShowWarning = false"
+            >
+              Отмена
+            </button>
+          </div>
+        </div>
+      </template>
+    </div>
+    <div
+      v-if="finalySolution && finalySolution.length"
+      class="cutting-chart-settings"
+    >
+      <div>
+        <button class="btn" @click="isShowReport = true">Отчет</button>
+      </div>
+      <div>
+        <button class="btn" @click="isShowWarning = true">Очистить</button>
+      </div>
+    </div>
     <div class="cutting-chart-main">
       <div class="cutting-chart__params-wrapper">
         <div class="params__item">
           <button
             :disabled="currentTab === TABS.params"
+            class="btn"
             @click="currentTab = TABS.params"
           >
             Параметры раскроя
           </button>
           <button
             :disabled="currentTab === TABS.cutting || !isShowCutting"
+            class="btn"
             @click="currentTab = TABS.cutting"
           >
             Раскрой
@@ -141,6 +192,7 @@
                   :disabled="
                     !(blankParamsInput.width && blankParamsInput.height)
                   "
+                  class="btn"
                   @click="addToBlanksList"
                 >
                   +
@@ -156,7 +208,7 @@
                 ref="file"
                 type="file"
                 hidden
-                @change="loadData"
+                @input="loadData"
               />
             </div>
             <div class="params__item-table">
@@ -176,18 +228,28 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(blank, key) in blanksList" :key="key">
+                  <tr
+                    v-for="(blank, key) in blanksList"
+                    :key="key"
+                    :class="{
+                      blanks__table_body_row_error: isErrorBlank(blank)
+                    }"
+                  >
                     <td>{{ blank.id }}</td>
                     <td>{{ blank.width }}</td>
                     <td>{{ blank.height }}</td>
                     <td>
-                      <button @click="deleteBlank(blank.id)">
+                      <button class="btn" @click="deleteBlank(blank.id)">
                         Удалить {{ blank.id }}
                       </button>
                     </td>
                   </tr>
                 </tbody>
               </table>
+            </div>
+            <div v-if="isHaveBiggerBlank" class="blanks__error-text">
+              В списке детали, размеры которых превышают размеры листа материала
+              <div>*С учетом припусков</div>
             </div>
           </div>
           <!-- <button
@@ -200,12 +262,15 @@
           <!-- <button @click="addCanvas">
             Добавить
           </button> -->
-          <button :disabled="!isNotAllFieldsFilled" @click="algorithmStart">
+          <button
+            class="btn"
+            :disabled="!isNotAllFieldsFilled"
+            @click="algorithmStart"
+          >
             Запустить алгоритм
           </button>
         </template>
         <template v-else-if="currentTab === TABS.cutting && isShowCutting">
-          Раскрой
           <ul>
             <li
               :class="{ 'params__blank-list-item_active': showPaper === 0 }"
@@ -224,6 +289,13 @@
               {{ key1 + 1 }} карта
             </li>
           </ul>
+          <div v-if="Number(showPaper) > 0">
+            <template v-if="descriptionPaper">
+              <div v-if="descriptionPaper.fullness">
+                Заполненность {{ descriptionPaper.fullness }}
+              </div>
+            </template>
+          </div>
         </template>
       </div>
       <div v-if="isLoaded" class="params__loaded">
