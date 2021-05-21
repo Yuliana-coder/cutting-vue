@@ -523,9 +523,10 @@ export default class CuttingChart extends Vue {
     promise
       .then(() => {
         this.isLoaded = "";
+        // console.log(this.isLoaded);
       })
       .catch(() => {
-        this.isLoaded = "Прозишла ошибка";
+        this.isLoaded = "Произошла ошибка";
       });
   }
 
@@ -732,7 +733,8 @@ export default class CuttingChart extends Vue {
   get descriptionPaper() {
     let paper: any = this.bestSolution[Number(this.showPaper) - 1];
     let description: any = {
-      fullness: 0
+      fullness: 0,
+      blanks: this.bestSolution[Number(this.showPaper) - 1]
     };
 
     for (let i = 0; i < paper.length; i++) {
@@ -752,6 +754,10 @@ export default class CuttingChart extends Vue {
       "%";
 
     return description;
+  }
+
+  blankById(id: any) {
+    return this.blanksList[id];
   }
 
   randomInteger(min, max) {

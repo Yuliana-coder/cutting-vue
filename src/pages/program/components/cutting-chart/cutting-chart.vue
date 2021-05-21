@@ -271,28 +271,59 @@
           </button>
         </template>
         <template v-else-if="currentTab === TABS.cutting && isShowCutting">
-          <ul>
-            <li
-              :class="{ 'params__blank-list-item_active': showPaper === 0 }"
-              @click="drawBestSolution(0)"
-            >
-              Все
-            </li>
-            <li
-              v-for="(cutIndex, key1) in bestSolutionValue"
-              :key="key1"
-              :class="{
-                'params__blank-list-item_active': showPaper === key1 + 1
-              }"
-              @click="drawPaper(key1 + 1)"
-            >
-              {{ key1 + 1 }} карта
-            </li>
-          </ul>
-          <div v-if="Number(showPaper) > 0">
+          <div class="params__blank-list-wrapper">
+            <ul>
+              <li
+                :class="{ 'params__blank-list-item_active': showPaper === 0 }"
+                @click="drawBestSolution(0)"
+              >
+                Все
+              </li>
+              <li
+                v-for="(cutIndex, key1) in bestSolutionValue"
+                :key="key1"
+                :class="{
+                  'params__blank-list-item_active': showPaper === key1 + 1
+                }"
+                @click="drawPaper(key1 + 1)"
+              >
+                {{ key1 + 1 }} карта
+              </li>
+            </ul>
+          </div>
+          <div v-if="Number(showPaper) != 0">
             <template v-if="descriptionPaper">
               <div v-if="descriptionPaper.fullness">
                 Заполненность {{ descriptionPaper.fullness }}
+              </div>
+              <div>
+                <table
+                  v-if="
+                    descriptionPaper.blanks && descriptionPaper.blanks.length
+                  "
+                  class="blanks__table"
+                >
+                  <caption>
+                    Список деталей
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">№</th>
+                      <th scope="col">Ширина</th>
+                      <th scope="col">Высота</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="(blank, key2) in descriptionPaper.blanks"
+                      :key="key2"
+                    >
+                      <td>{{ blank.id + 1 }}</td>
+                      <td>{{ blankById(blank.id).width }}</td>
+                      <td>{{ blankById(blank.id).height }}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </template>
           </div>

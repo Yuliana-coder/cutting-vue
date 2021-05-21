@@ -149,6 +149,16 @@ td, th {
   background-color: lightslategray;
 }
 
+.params__blank-list-wrapper {
+  border-bottom: solid 1px black;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.params__blank-list-wrapper:hover {
+  cursor: pointer;
+}
+
 /*Панель управления*/
 .cutting-chart-settings {
   display: flex;
