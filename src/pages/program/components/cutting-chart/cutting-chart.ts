@@ -838,28 +838,47 @@ export default class CuttingChart extends Vue {
   //печать и экспорт карт раскроя
   async printMaps() {
     let printOutput: any = "";
-    for (
-      let i = 0;
-      i < document.querySelectorAll(".cutting-chart__canvas-wrapper").length;
-      i++
-    ) {
-      await html2canvas(
-        <HTMLElement>(
-          document.querySelectorAll(".cutting-chart__canvas-wrapper")[i]
-        )
-      ).then(canvas => {
-        let url = canvas.toDataURL("image / png"); // finally produced image url
-        if (url) {
-          printOutput =
-            printOutput + `<div class="print-canvas"><img src="${url}"></div>`;
+    let promise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        for (
+          let i = 0;
+          i <
+          document.querySelectorAll(".cutting-chart__canvas-wrapper").length;
+          i++
+        ) {
+          html2canvas(
+            <HTMLElement>(
+              document.querySelectorAll(".cutting-chart__canvas-wrapper")[i]
+            )
+          )
+            .then(canvas => {
+              let url = canvas.toDataURL("image / png"); // finally produced image url
+              if (url) {
+                printOutput =
+                  printOutput +
+                  `<div class="print-canvas"><img src="${url}"></div>`;
+              }
+            })
+            .then(() => {
+              if (
+                i ===
+                document.querySelectorAll(".cutting-chart__canvas-wrapper")
+                  .length -
+                  1
+              ) {
+                resolve("");
+              }
+            });
         }
-      });
-    }
+      }, 1);
+    });
 
-    let WinPrint: any = window.open();
-    WinPrint.document.write(printOutput);
-    WinPrint.document.close();
-    WinPrint.focus();
-    WinPrint.print();
+    promise.then(() => {
+      let WinPrint: any = window.open();
+      WinPrint.document.write(printOutput);
+      WinPrint.document.close();
+      WinPrint.focus();
+      WinPrint.print();
+    });
   }
 }
