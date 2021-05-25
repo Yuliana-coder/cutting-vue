@@ -14,6 +14,9 @@
             Показатель эффективности раскроя - коэффициент раскроя - Кр
             <div>Кр: {{ koeffCutting }}</div>
           </div>
+          <div>
+            <button class="btn" @click="printMaps">Распечатать</button>
+          </div>
         </div>
       </template>
       <template v-else-if="isShowWarning">

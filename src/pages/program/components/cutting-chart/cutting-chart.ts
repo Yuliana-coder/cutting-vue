@@ -311,7 +311,7 @@ export default class CuttingChart extends Vue {
             this.currentSolution[i].y + this.currentSolution[i].height
         ) {
           if (
-            this.currentSolution[i].x >= position.x &&
+            this.currentSolution[i].x > position.x &&
             position.x + blank.width >= this.currentSolution[i].x
           ) {
             isCross = true;
@@ -337,7 +337,7 @@ export default class CuttingChart extends Vue {
 
       //если под заготовкой есть детали, то в пределах ширины нельзя персечься с заготовкой
       for (let i = 0; i < this.currentSolution.length; i++) {
-        if (this.currentSolution[i].y >= position.y) {
+        if (this.currentSolution[i].y > position.y) {
           //смотрим на зготовки с которыми можем персечься, то есть в пределах ширины
           if (
             position.x >= this.currentSolution[i].x &&
@@ -354,6 +354,21 @@ export default class CuttingChart extends Vue {
               isCan = false;
               break;
             }
+          }
+        } else if (
+          position.y >= this.currentSolution[i].y &&
+          position.y <=
+            this.currentSolution[i].y + this.currentSolution[i].heigth
+        ) {
+          if (
+            position.x >= this.currentSolution[i].x &&
+            position.x <=
+              this.currentSolution[i].x + this.currentSolution[i].width
+          ) {
+            isCan = false;
+            break;
+          } else {
+            isCan = true;
           }
         }
       }
@@ -374,10 +389,13 @@ export default class CuttingChart extends Vue {
   }
 
   //возвращает правую границу по верхней заготовке или правую границу листа материала
-  rigthBorderByTopBlank(pointX) {
+  rigthBorderByTopBlank(pointX, pointY) {
     let borderX = this.paperParams.width - this.paperParams.allowanceBorder;
     for (let i = 0; i < this.currentSolution.length; i++) {
-      if (this.currentSolution[i].y === this.paperParams.allowanceBorder) {
+      if (
+        this.currentSolution[i].y === this.paperParams.allowanceBorder &&
+        pointY != this.paperParams.allowanceBorder
+      ) {
         if (
           pointX >= this.currentSolution[i].x &&
           pointX <= this.currentSolution[i].x + this.currentSolution[i].width
@@ -426,7 +444,12 @@ export default class CuttingChart extends Vue {
               this.positionsList[j].y +
               this.blanksListParams[solution[i]].height +
               this.allowanceBlankParams.cut,
-            borderX: this.rigthBorderByTopBlank(this.positionsList[j].x)
+            borderX: this.rigthBorderByTopBlank(
+              this.positionsList[j].x,
+              this.positionsList[j].y +
+                this.blanksListParams[solution[i]].height +
+                this.allowanceBlankParams.cut
+            )
           });
 
           //правая заготовка
@@ -439,13 +462,15 @@ export default class CuttingChart extends Vue {
             borderX: this.rigthBorderByTopBlank(
               this.positionsList[j].x +
                 this.blanksListParams[solution[i]].width +
-                this.allowanceBlankParams.cut
+                this.allowanceBlankParams.cut,
+              this.positionsList[j].y
             )
           });
 
           this.positionsList.splice(j, 1);
+
           //отсортировать по y приоритетный список
-          // this.positionsList.sort(this.byField("y")).reverse();
+
           this.positionsList = this.positionsList.sort(function(a, b) {
             return a.y - b.y || a.x - b.x;
           });
@@ -523,7 +548,6 @@ export default class CuttingChart extends Vue {
     promise
       .then(() => {
         this.isLoaded = "";
-        // console.log(this.isLoaded);
       })
       .catch(() => {
         this.isLoaded = "Произошла ошибка";
@@ -645,15 +669,17 @@ export default class CuttingChart extends Vue {
             this.bestSolution[i][j].height
           );
 
-          context.setLineDash([6]);
-          context.strokeRect(
-            this.bestSolution[i][j].x + this.allowanceBlankParams.blankBorder,
-            this.bestSolution[i][j].y + this.allowanceBlankParams.blankBorder,
-            this.bestSolution[i][j].width -
-              2 * this.allowanceBlankParams.blankBorder,
-            this.bestSolution[i][j].height -
-              2 * this.allowanceBlankParams.blankBorder
-          );
+          if (this.allowanceBlankParams.blankBorder) {
+            context.setLineDash([6]);
+            context.strokeRect(
+              this.bestSolution[i][j].x + this.allowanceBlankParams.blankBorder,
+              this.bestSolution[i][j].y + this.allowanceBlankParams.blankBorder,
+              this.bestSolution[i][j].width -
+                2 * this.allowanceBlankParams.blankBorder,
+              this.bestSolution[i][j].height -
+                2 * this.allowanceBlankParams.blankBorder
+            );
+          }
 
           context.font = "bold 24px serif";
 
@@ -799,5 +825,20 @@ export default class CuttingChart extends Vue {
 
   load() {
     this.file.click();
+  }
+
+  printMaps() {
+    let prtContent: any = document.querySelector(".canvas__wrapper");
+    let WinPrint: any = window.open(
+      "",
+      "",
+      "left=50,top=50,width=800,height=640,toolbar=0,scrollbars=1,status=0"
+    );
+    WinPrint.document.write("ууууу");
+    WinPrint.document.write(prtContent.innerHTML);
+    WinPrint.document.write("ццццц");
+    WinPrint.document.close();
+    WinPrint.focus();
+    WinPrint.print();
   }
 }
