@@ -1,5 +1,6 @@
 import { Vue, Component, Watch } from "vue-property-decorator";
 import { IPaperParams, IBlankParams } from "@/pages/program/interfaces";
+import html2canvas from "html2canvas";
 
 const MAX_WIDTH_PAPER = 1000;
 const MAX_HEIGHT_PAPER = 600;
@@ -311,8 +312,15 @@ export default class CuttingChart extends Vue {
             this.currentSolution[i].y + this.currentSolution[i].height
         ) {
           if (
-            this.currentSolution[i].x > position.x &&
+            this.currentSolution[i].x >= position.x &&
             position.x + blank.width >= this.currentSolution[i].x
+          ) {
+            isCross = true;
+            break;
+          } else if (
+            this.currentSolution[i].x < position.x &&
+            position.x <=
+              this.currentSolution[i].x + this.currentSolution[i].width
           ) {
             isCross = true;
             break;
@@ -827,16 +835,29 @@ export default class CuttingChart extends Vue {
     this.file.click();
   }
 
-  printMaps() {
-    let prtContent: any = document.querySelector(".canvas__wrapper");
-    let WinPrint: any = window.open(
-      "",
-      "",
-      "left=50,top=50,width=800,height=640,toolbar=0,scrollbars=1,status=0"
-    );
-    WinPrint.document.write("ууууу");
-    WinPrint.document.write(prtContent.innerHTML);
-    WinPrint.document.write("ццццц");
+  //печать и экспорт карт раскроя
+  async printMaps() {
+    let printOutput: any = "";
+    for (
+      let i = 0;
+      i < document.querySelectorAll(".cutting-chart__canvas-wrapper").length;
+      i++
+    ) {
+      await html2canvas(
+        <HTMLElement>(
+          document.querySelectorAll(".cutting-chart__canvas-wrapper")[i]
+        )
+      ).then(canvas => {
+        let url = canvas.toDataURL("image / png"); // finally produced image url
+        if (url) {
+          printOutput =
+            printOutput + `<div class="print-canvas"><img src="${url}"></div>`;
+        }
+      });
+    }
+
+    let WinPrint: any = window.open();
+    WinPrint.document.write(printOutput);
     WinPrint.document.close();
     WinPrint.focus();
     WinPrint.print();

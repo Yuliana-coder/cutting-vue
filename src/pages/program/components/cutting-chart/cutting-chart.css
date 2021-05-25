@@ -21,6 +21,8 @@
 
 .canvas__wrapper {
   padding-left: 10px;
+  padding-right: 40px;
+  padding-bottom: 40px;
   width: 70%;
 }
 
@@ -29,6 +31,8 @@
   flex-direction: column;
   /* flex: 65%; */
   margin-bottom: 15px;
+  padding-bottom: 55px;
+  padding-right: 25px;
 }
 
 .cutting-chart__canvas {
@@ -220,3 +224,14 @@ td, th {
 }
 
 /*--Панель управления--*/
+
+@media print {
+  .cutting-chart__canvas-wrapper {
+   page-break-after: always;
+  } 
+
+  .print-canvas {
+    page-break-after: always;
+  }
+
+ }
