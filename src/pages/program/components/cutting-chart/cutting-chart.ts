@@ -313,7 +313,8 @@ export default class CuttingChart extends Vue {
         ) {
           if (
             this.currentSolution[i].x >= position.x &&
-            position.x + blank.width + this.allowanceBlankParams.cut > this.currentSolution[i].x
+            position.x + blank.width + this.allowanceBlankParams.cut >
+              this.currentSolution[i].x
           ) {
             isCross = true;
             break;
@@ -662,7 +663,7 @@ export default class CuttingChart extends Vue {
       let context = this.canvas.getContext("2d");
       context.font = "48px";
       if (context && this.bestSolution[i] && this.bestSolution[i].length) {
-        if(this.paperParams.allowanceBorder) {
+        if (this.paperParams.allowanceBorder) {
           context.strokeRect(
             this.paperParams.allowanceBorder,
             this.paperParams.allowanceBorder,
@@ -703,36 +704,40 @@ export default class CuttingChart extends Vue {
 
           context.font = "bold 12px serif";
 
-        context.fillText(
-          "№" + String(this.bestSolution[i][j].id + 1),
-          this.bestSolution[i][j].x + (this.bestSolution[i][j].width/4)*3 - 12,
-          this.bestSolution[i][j].y + (this.bestSolution[i][j].height/4)*3 - 12
-        );
+          context.fillText(
+            "№" + String(this.bestSolution[i][j].id + 1),
+            this.bestSolution[i][j].x +
+              (this.bestSolution[i][j].width / 4) * 3 -
+              12,
+            this.bestSolution[i][j].y +
+              (this.bestSolution[i][j].height / 4) * 3 -
+              12
+          );
 
-        context.font = "bold 10px serif";
-        context.fillText(
-          String(this.blanksList[this.bestSolution[i][j].id].width),
-          this.bestSolution[i][j].x + this.bestSolution[i][j].width/2,
-          this.bestSolution[i][j].y +
-            12 +
-            this.allowanceBlankParams.blankBorder
-        );
-        context.fillText(
-          String(this.blanksList[this.bestSolution[i][j].id].height),
-          this.bestSolution[i][j].x + 2,
-          this.bestSolution[i][j].y + this.bestSolution[i][j].height/2
-        );
-        context.font = "bold 16px serif";
-        context.fillText(
-          "w" + String(this.paperParamsInput.width),
-          this.paperParams.width - 100,
-          this.paperParams.height - 10
-        );
-        context.fillText(
-          "h" + String(this.paperParamsInput.height),
-          this.paperParams.width - 50,
-          this.paperParams.height - 50
-        );
+          context.font = "bold 10px serif";
+          context.fillText(
+            String(this.blanksList[this.bestSolution[i][j].id].width),
+            this.bestSolution[i][j].x + this.bestSolution[i][j].width / 2,
+            this.bestSolution[i][j].y +
+              12 +
+              this.allowanceBlankParams.blankBorder
+          );
+          context.fillText(
+            String(this.blanksList[this.bestSolution[i][j].id].height),
+            this.bestSolution[i][j].x + 2,
+            this.bestSolution[i][j].y + this.bestSolution[i][j].height / 2
+          );
+          context.font = "bold 16px serif";
+          context.fillText(
+            "w" + String(this.paperParamsInput.width),
+            this.paperParams.width - 100,
+            this.paperParams.height - 10
+          );
+          context.fillText(
+            "h" + String(this.paperParamsInput.height),
+            this.paperParams.width - 50,
+            this.paperParams.height - 50
+          );
         }
       }
     }
@@ -758,7 +763,7 @@ export default class CuttingChart extends Vue {
       this.bestSolution[showPaper - 1] &&
       this.bestSolution[showPaper - 1].length
     ) {
-      if(this.paperParams.allowanceBorder) {
+      if (this.paperParams.allowanceBorder) {
         context.strokeRect(
           this.paperParams.allowanceBorder,
           this.paperParams.allowanceBorder,
@@ -793,22 +798,30 @@ export default class CuttingChart extends Vue {
 
         context.fillText(
           "№" + String(this.bestSolution[showPaper - 1][j].id + 1),
-          this.bestSolution[showPaper - 1][j].x + (this.bestSolution[showPaper - 1][j].width/4)*3 - 12,
-          this.bestSolution[showPaper - 1][j].y + (this.bestSolution[showPaper - 1][j].height/4)*3 - 12
+          this.bestSolution[showPaper - 1][j].x +
+            (this.bestSolution[showPaper - 1][j].width / 4) * 3 -
+            12,
+          this.bestSolution[showPaper - 1][j].y +
+            (this.bestSolution[showPaper - 1][j].height / 4) * 3 -
+            12
         );
 
         context.font = "bold 10px serif";
         context.fillText(
           String(this.blanksList[this.bestSolution[showPaper - 1][j].id].width),
-          this.bestSolution[showPaper - 1][j].x + this.bestSolution[showPaper - 1][j].width/2,
+          this.bestSolution[showPaper - 1][j].x +
+            this.bestSolution[showPaper - 1][j].width / 2,
           this.bestSolution[showPaper - 1][j].y +
             12 +
             this.allowanceBlankParams.blankBorder
         );
         context.fillText(
-          String(this.blanksList[this.bestSolution[showPaper - 1][j].id].height),
+          String(
+            this.blanksList[this.bestSolution[showPaper - 1][j].id].height
+          ),
           this.bestSolution[showPaper - 1][j].x + 2,
-          this.bestSolution[showPaper - 1][j].y + this.bestSolution[showPaper - 1][j].height/2
+          this.bestSolution[showPaper - 1][j].y +
+            this.bestSolution[showPaper - 1][j].height / 2
         );
         context.font = "bold 16px serif";
         context.fillText(
@@ -911,7 +924,8 @@ export default class CuttingChart extends Vue {
           html2canvas(
             <HTMLElement>(
               document.querySelectorAll(".cutting-chart__canvas-wrapper")[i]
-            ), {scrollY: -window.scrollY}
+            ),
+            { scrollY: -window.scrollY }
           )
             .then(canvas => {
               let url = canvas.toDataURL("image / png"); // finally produced image url
