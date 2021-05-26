@@ -305,14 +305,16 @@ export default class CuttingChart extends Vue {
       position.borderX
     ) {
       for (let i = 0; i < this.currentSolution.length; i++) {
-        //смотрим на пересечение заготовок на однов вертикальном уровне
+        //смотрим на пересечение заготовок на одном вертикальном уровне
         if (
           position.y >= this.currentSolution[i].y &&
           position.y <=
-            this.currentSolution[i].y + this.currentSolution[i].height
+            this.currentSolution[i].y +
+              this.currentSolution[i].height +
+              this.allowanceBlankParams.cut
         ) {
           if (
-            this.currentSolution[i].x >= position.x &&
+            this.currentSolution[i].x > position.x &&
             position.x + blank.width + this.allowanceBlankParams.cut >
               this.currentSolution[i].x
           ) {
@@ -320,8 +322,10 @@ export default class CuttingChart extends Vue {
             break;
           } else if (
             this.currentSolution[i].x < position.x &&
-            position.x <=
-              this.currentSolution[i].x + this.currentSolution[i].width
+            position.x <
+              this.currentSolution[i].x +
+                this.currentSolution[i].width +
+                this.allowanceBlankParams.cut
           ) {
             isCross = true;
             break;
@@ -366,8 +370,10 @@ export default class CuttingChart extends Vue {
           }
         } else if (
           position.y >= this.currentSolution[i].y &&
-          position.y <=
-            this.currentSolution[i].y + this.currentSolution[i].heigth
+          position.y <
+            this.currentSolution[i].y +
+              this.currentSolution[i].heigth +
+              this.allowanceBlankParams.cut
         ) {
           if (
             position.x >= this.currentSolution[i].x &&
@@ -379,6 +385,8 @@ export default class CuttingChart extends Vue {
           } else {
             isCan = true;
           }
+        } else {
+          isCan = true;
         }
       }
 
