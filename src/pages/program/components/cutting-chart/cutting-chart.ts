@@ -308,13 +308,13 @@ export default class CuttingChart extends Vue {
         //смотрим на пересечение заготовок на одном вертикальном уровне
         if (
           position.y >= this.currentSolution[i].y &&
-          position.y <=
+          position.y <
             this.currentSolution[i].y +
               this.currentSolution[i].height +
               this.allowanceBlankParams.cut
         ) {
           if (
-            this.currentSolution[i].x > position.x &&
+            this.currentSolution[i].x >= position.x &&
             position.x + blank.width + this.allowanceBlankParams.cut >
               this.currentSolution[i].x
           ) {
@@ -385,9 +385,10 @@ export default class CuttingChart extends Vue {
           } else {
             isCan = true;
           }
-        } else {
-          isCan = true;
         }
+        //  else {
+        //   isCan = true;
+        // }
       }
 
       //если под текущей позицией нет заготовок, то смотрим не выходит ли заготовки за пределы листа по высоте
