@@ -64,18 +64,18 @@ export default class CuttingChart extends Vue {
 
   get paperParams() {
     return {
-      width: Number(this.paperParamsInput.width * this.scaleFactor),
-      height: Number(this.paperParamsInput.height * this.scaleFactor),
-      allowanceBorder: Number(
-        this.paperParamsInput.allowanceBorder * this.scaleFactor
-      )
+      width: Number(this.paperParamsInput.width) * Number(this.scaleFactor),
+      height: Number(this.paperParamsInput.height) * Number(this.scaleFactor),
+      allowanceBorder:
+        Number(this.paperParamsInput.allowanceBorder) * Number(this.scaleFactor)
     };
   }
 
   get allowanceBlankParams() {
     return {
-      cut: Number(this.allowanceBlank.cut * this.scaleFactor),
-      blankBorder: Number(this.allowanceBlank.blankBorder * this.scaleFactor)
+      cut: Number(this.allowanceBlank.cut) * Number(this.scaleFactor),
+      blankBorder:
+        Number(this.allowanceBlank.blankBorder) * Number(this.scaleFactor)
     };
   }
 
@@ -83,10 +83,10 @@ export default class CuttingChart extends Vue {
     return this.blanksList.map((item: any) => {
       return {
         width:
-          Number(item.width * this.scaleFactor) +
+          Number(item.width) * Number(this.scaleFactor) +
           Number(this.allowanceBlankParams.blankBorder) * 2,
         height:
-          Number(item.height * this.scaleFactor) +
+          Number(item.height) * Number(this.scaleFactor) +
           Number(this.allowanceBlankParams.blankBorder) * 2,
         id: item.id
       };
@@ -135,14 +135,16 @@ export default class CuttingChart extends Vue {
 
   isErrorBlank(blank: any) {
     return (
-      blank.width +
-        this.allowanceBlankParams.blankBorder * 2 +
-        this.allowanceBlankParams.cut >
-        this.paperParams.width - this.paperParams.allowanceBorder * 2 ||
-      blank.height +
-        this.allowanceBlankParams.blankBorder * 2 +
-        this.allowanceBlankParams.cut >
-        this.paperParams.height - this.paperParams.allowanceBorder * 2
+      Number(blank.width) +
+        Number(this.allowanceBlank.blankBorder) * 2 +
+        Number(this.allowanceBlank.cut) >
+        Number(this.paperParamsInput.width) -
+          Number(this.paperParamsInput.allowanceBorder) * 2 ||
+      Number(blank.height) +
+        Number(this.allowanceBlank.blankBorder * 2) +
+        Number(this.allowanceBlank.cut) >
+        Number(this.paperParamsInput.height) -
+          Number(this.paperParamsInput.allowanceBorder * 2)
     );
   }
 
@@ -150,14 +152,16 @@ export default class CuttingChart extends Vue {
     let res: any = false;
     for (let i = 0; i < this.blanksList.length; i++) {
       if (
-        this.blanksList[i].width +
-          this.allowanceBlankParams.blankBorder * 2 +
-          this.allowanceBlankParams.cut >
-          this.paperParams.width - this.paperParams.allowanceBorder * 2 ||
-        this.blanksList[i].height +
-          this.allowanceBlankParams.blankBorder * 2 +
-          this.allowanceBlankParams.cut >
-          this.paperParams.height - this.paperParams.allowanceBorder * 2
+        Number(this.blanksList[i].width) +
+          Number(this.allowanceBlank.blankBorder) * 2 +
+          Number(this.allowanceBlank.cut) >
+          Number(this.paperParamsInput.width) -
+            Number(this.paperParamsInput.allowanceBorder) * 2 ||
+        Number(this.blanksList[i].height) +
+          Number(this.allowanceBlank.blankBorder * 2) +
+          Number(this.allowanceBlank.cut) >
+          Number(this.paperParamsInput.height) -
+            Number(this.paperParamsInput.allowanceBorder * 2)
       ) {
         res = true;
         break;
@@ -220,7 +224,8 @@ export default class CuttingChart extends Vue {
     ) {
       if (
         Number(this.paperParamsInput.width) >
-        Number(this.paperParamsInput.height)
+          Number(this.paperParamsInput.height) &&
+        Number(this.paperParamsInput.width) > MAX_WIDTH_PAPER
       ) {
         this.scaleFactor =
           MAX_WIDTH_PAPER / Number(this.paperParamsInput.width);
@@ -666,6 +671,10 @@ export default class CuttingChart extends Vue {
       let canvasElement: any = document.getElementById(`myCanvas${i}`);
       canvasElement.width = this.paperParams.width;
       canvasElement.height = this.paperParams.height;
+      /////////
+      canvasElement.style.width = this.paperParams.width + "px";
+      canvasElement.style.height = this.paperParams.height + "px";
+      ///////////
 
       this.canvas = canvasElement;
 
