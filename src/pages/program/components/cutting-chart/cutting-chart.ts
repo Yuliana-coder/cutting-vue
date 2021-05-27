@@ -36,6 +36,13 @@ export default class CuttingChart extends Vue {
     height: 0
   };
 
+  defectParamsInput: any = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0
+  };
+
   blanksList: any[] = []; //список деталей
   blanksCount: number = 0;
   isShowCutting: boolean = false;
@@ -56,6 +63,10 @@ export default class CuttingChart extends Vue {
   iteretionsCount: any = 0;
   partNeighborhood: any = [];
   isLoaded: any = "";
+
+  //дефекты
+  defectsList: any = [];
+  countDefectsPaper: any = 0; //количесво дефктных листов
 
   error = {
     inputData: false, // ошибка ввода данных, если деталь больше, чем лист
@@ -91,6 +102,22 @@ export default class CuttingChart extends Vue {
         id: item.id
       };
     });
+  }
+
+  get defectsListParams() {
+    let res = [...this.defectsList];
+    for (let i = 0; i < res.length; i++) {
+      res[i] = res[i].map((item: any) => {
+        return {
+          x: Number(item.x) * Number(this.scaleFactor),
+          y: Number(item.y) * Number(this.scaleFactor),
+          width: Number(item.width) * Number(this.scaleFactor),
+          height: Number(item.height) * Number(this.scaleFactor),
+          paper: item.paper
+        };
+      });
+    }
+    return res;
   }
 
   get koeffCutting() {
@@ -244,15 +271,15 @@ export default class CuttingChart extends Vue {
     this.isShowCutting = true;
   }
 
-  get generateBlankId() {
+  generateBlankId(list: any) {
     let result: any = null;
     let adder = 1;
     while (!result) {
-      let filterBlanks = this.blanksList.filter((item: any) => {
-        return item.id != this.blanksList.length + adder;
+      let filterBlanks = list.filter((item: any) => {
+        return item.id != list.length + adder;
       });
-      if (this.blanksList.length === filterBlanks.length) {
-        result = this.blanksList.length + adder;
+      if (list.length === filterBlanks.length) {
+        result = list.length + adder;
       } else {
         adder = adder + 1;
       }
@@ -263,14 +290,28 @@ export default class CuttingChart extends Vue {
   addToBlanksList() {
     this.blanksList.push({
       ...this.blankParamsInput,
-      id: this.generateBlankId
+      id: this.generateBlankId(this.blanksList)
     });
     this.blankParamsInput = { width: 0, height: 0 };
+  }
+
+  addToDefectList() {
+    this.defectsList[this.countDefectsPaper - 1].push({
+      ...this.defectParamsInput,
+      paper: this.countDefectsPaper
+    });
+    this.defectParamsInput = { x: 0, y: 0, width: 0, height: 0 };
   }
 
   deleteBlank(id: number) {
     this.blanksList = this.blanksList.filter((item: any) => {
       return item.id != id;
+    });
+  }
+
+  deleteDefect(defect: any, key: any) {
+    this.defectsList[key] = this.defectsList[key].filter((item: any) => {
+      return item != defect;
     });
   }
 
@@ -344,67 +385,157 @@ export default class CuttingChart extends Vue {
     return isCross;
   }
 
+  // проверка условия при размещении на пересечение с дефектной областью
+  isCrossDefects(blank, position) {
+    let isCross: any = false;
+    if (
+      this.defectsListParams[this.finalySolution.length] &&
+      this.defectsListParams[this.finalySolution.length].length
+    ) {
+      for (
+        let i = 0;
+        i < this.defectsListParams[this.finalySolution.length].length;
+        i++
+      ) {
+        isCross = true;
+        let a: any = {
+          x: position.x,
+          y: position.y,
+          x1: position.x + blank.width,
+          y1: position.y + blank.height
+        };
+        let b: any = {
+          x: this.defectsListParams[this.finalySolution.length][i].x,
+          y: this.defectsListParams[this.finalySolution.length][i].y,
+          x1:
+            this.defectsListParams[this.finalySolution.length][i].x +
+            this.defectsListParams[this.finalySolution.length][i].width,
+          y1:
+            this.defectsListParams[this.finalySolution.length][i].y +
+            this.defectsListParams[this.finalySolution.length][i].height
+        };
+        if (a.y > b.y1 || a.y1 < b.y || a.x1 < b.x || a.x > b.x1) {
+          isCross = false;
+        } else {
+          break;
+        }
+      }
+    }
+    return isCross;
+  }
+
+  // //определяет может ли заготовка быть размещена на данную позицию
+  // isCanBeArranged(blank, position) {
+  //   //проверка на возможность расположить заготовку в текущую позицию
+  //   let isCan: any = false;
+  //   if(!this.isCrossDefects(blank, position)){
+  //     //если ширина заготовки не выходит за правую границу
+  //     if (!this.isNotCrossRigthBlanks(blank, position)) {
+  //       //если ширина заготовки не выходит за верхнюю границу
+  //       let isHaveBottomElement: any = false;
+
+  //       //если под заготовкой есть детали, то в пределах ширины нельзя персечься с заготовкой
+  //       for (let i = 0; i < this.currentSolution.length; i++) {
+  //         if (this.currentSolution[i].y > position.y) {
+  //           //смотрим на зготовки с которыми можем персечься, то есть в пределах ширины
+  //           if (
+  //             position.x >= this.currentSolution[i].x &&
+  //             position.x <=
+  //               this.currentSolution[i].x + this.currentSolution[i].width
+  //           ) {
+  //             isHaveBottomElement = true;
+  //             if (
+  //               this.currentSolution[i].y >=
+  //               position.y + blank.height + this.allowanceBlankParams.cut
+  //             ) {
+  //               isCan = true;
+  //             } else {
+  //               isCan = false;
+  //               break;
+  //             }
+  //           }
+  //         } else if (
+  //           position.y >= this.currentSolution[i].y &&
+  //           position.y <
+  //             this.currentSolution[i].y +
+  //               this.currentSolution[i].height +
+  //               this.allowanceBlankParams.cut
+  //         ) {
+  //           if (
+  //             position.x >= this.currentSolution[i].x &&
+  //             position.x <=
+  //               this.currentSolution[i].x + this.currentSolution[i].width
+  //           ) {
+  //             isCan = false;
+  //             break;
+  //           } else {
+  //             isCan = true;
+  //           }
+  //         }
+  //         //  else {
+  //         //   isCan = true;
+  //         // }
+  //       }
+
+  //       //если под текущей позицией нет заготовок, то смотрим не выходит ли заготовки за пределы листа по высоте
+  //       if (!isHaveBottomElement) {
+  //         if (
+  //           position.y + blank.height + this.allowanceBlankParams.cut >
+  //           this.paperParams.height - this.paperParams.allowanceBorder
+  //         ) {
+  //           isCan = false;
+  //         } else {
+  //           isCan = true;
+  //         }
+  //       }
+  //     }
+  //   }
+  //   return isCan;
+  // }
+
   //определяет может ли заготовка быть размещена на данную позицию
   isCanBeArranged(blank, position) {
     //проверка на возможность расположить заготовку в текущую позицию
     let isCan: any = false;
-    //если ширина заготовки не выходит за правую границу
-    if (!this.isNotCrossRigthBlanks(blank, position)) {
-      //если ширина заготовки не выходит за верхнюю границу
-      let isHaveBottomElement: any = false;
+    if (!this.isCrossDefects(blank, position)) {
+      // проверка на выход за границы листа
+      if (
+        position.x + blank.width + this.allowanceBlankParams.cut <=
+          position.borderX &&
+        position.y + blank.height + this.allowanceBlankParams.cut <=
+          this.paperParams.height - this.paperParams.allowanceBorder
+      ) {
+        isCan = true;
 
-      //если под заготовкой есть детали, то в пределах ширины нельзя персечься с заготовкой
-      for (let i = 0; i < this.currentSolution.length; i++) {
-        if (this.currentSolution[i].y > position.y) {
-          //смотрим на зготовки с которыми можем персечься, то есть в пределах ширины
-          if (
-            position.x >= this.currentSolution[i].x &&
-            position.x <=
-              this.currentSolution[i].x + this.currentSolution[i].width
-          ) {
-            isHaveBottomElement = true;
-            if (
-              this.currentSolution[i].y >=
-              position.y + blank.height + this.allowanceBlankParams.cut
-            ) {
-              isCan = true;
-            } else {
-              isCan = false;
-              break;
-            }
-          }
-        } else if (
-          position.y >= this.currentSolution[i].y &&
-          position.y <
-            this.currentSolution[i].y +
-              this.currentSolution[i].heigth +
-              this.allowanceBlankParams.cut
-        ) {
-          if (
-            position.x >= this.currentSolution[i].x &&
-            position.x <=
-              this.currentSolution[i].x + this.currentSolution[i].width
-          ) {
+        let a: any = {
+          x:
+            position.x === this.paperParams.allowanceBorder
+              ? position.x
+              : position.x + this.allowanceBlankParams.cut,
+          y: position.y,
+          x1:
+            position.x === this.paperParams.allowanceBorder
+              ? position.x + blank.width
+              : position.x + blank.width + this.allowanceBlankParams.cut,
+          y1: position.y + blank.height
+        };
+
+        let b: any = {};
+
+        // проверка на пересечение с другими заготовками
+        for (let i = 0; i < this.currentSolution.length; i++) {
+          b = {
+            x: this.currentSolution[i].x,
+            y: this.currentSolution[i].y,
+            x1: this.currentSolution[i].x + this.currentSolution[i].width,
+            y1: this.currentSolution[i].y + this.currentSolution[i].height
+          };
+          if (a.y >= b.y1 || a.y1 <= b.y || a.x1 <= b.x || a.x >= b.x1) {
+            isCan = true;
+          } else {
             isCan = false;
             break;
-          } else {
-            isCan = true;
           }
-        }
-        //  else {
-        //   isCan = true;
-        // }
-      }
-
-      //если под текущей позицией нет заготовок, то смотрим не выходит ли заготовки за пределы листа по высоте
-      if (!isHaveBottomElement) {
-        if (
-          position.y + blank.height + this.allowanceBlankParams.cut >
-          this.paperParams.height - this.paperParams.allowanceBorder
-        ) {
-          isCan = false;
-        } else {
-          isCan = true;
         }
       }
     }
@@ -443,9 +574,6 @@ export default class CuttingChart extends Vue {
       let isFindPosition = false;
 
       for (let j = 0; j < this.positionsList.length; j++) {
-        //если можно разместить на текущем листе заготовку, зададим ей координаты допустимой позиции
-        //если ширина текущей заготовки не выходит за ширину границы
-        //если высота зготовки не выходит за нижнюю границу
         if (
           this.isCanBeArranged(
             this.blanksListParams[solution[i]],
@@ -514,9 +642,9 @@ export default class CuttingChart extends Vue {
             borderX: this.paperParams.width - this.paperParams.allowanceBorder
           }
         ];
-        if (this.currentSolution && this.currentSolution.length) {
-          this.finalySolution.push(this.currentSolution);
-        }
+        // if (this.currentSolution && this.currentSolution.length) {
+        this.finalySolution.push(this.currentSolution);
+        // }
         this.lastArrangedBlank = i;
         break;
       } else if (i === solution.length - 1) {
@@ -582,13 +710,32 @@ export default class CuttingChart extends Vue {
     //приоритетный список, первое решение - рандомный список заготовок
     let solution: any = [];
     //список доступных позиций, первая позиций - начало координат
-    this.positionsList = [
-      {
-        x: this.paperParams.allowanceBorder,
-        y: this.paperParams.allowanceBorder,
-        borderX: this.paperParams.width - this.paperParams.allowanceBorder
+    if (this.defectsListParams[0] && this.defectsListParams[0].length) {
+      for (let i = 0; i < this.defectsListParams[0].length; i++) {
+        this.positionsList.push({
+          x: this.defectsListParams[0][i].x,
+          y:
+            this.defectsListParams[0][i].y +
+            this.defectsListParams[0][i].height,
+          borderX: this.paperParams.width - this.paperParams.allowanceBorder
+        });
+
+        this.positionsList.push({
+          x:
+            this.defectsListParams[0][i].x + this.defectsListParams[0][i].width,
+          y: this.defectsListParams[0][i].y,
+          borderX: this.paperParams.width - this.paperParams.allowanceBorder
+        });
       }
-    ];
+    } else {
+      this.positionsList = [
+        {
+          x: this.paperParams.allowanceBorder,
+          y: this.paperParams.allowanceBorder,
+          borderX: this.paperParams.width - this.paperParams.allowanceBorder
+        }
+      ];
+    }
     //количество итераций
     // let iteretionsCount = 1;
 
@@ -672,14 +819,24 @@ export default class CuttingChart extends Vue {
       canvasElement.width = this.paperParams.width;
       canvasElement.height = this.paperParams.height;
       /////////
-      canvasElement.style.width = this.paperParams.width + "px";
-      canvasElement.style.height = this.paperParams.height + "px";
+      // canvasElement.style.width = this.paperParams.width + "px";
+      // canvasElement.style.height = this.paperParams.height + "px";
       ///////////
 
       this.canvas = canvasElement;
 
       let context = this.canvas.getContext("2d");
       context.font = "48px";
+      if (this.defectsListParams[i] && this.defectsListParams[i].length) {
+        for (let k = 0; k < this.defectsListParams[i].length; k++) {
+          context.fillRect(
+            this.defectsListParams[i][k].x,
+            this.defectsListParams[i][k].y,
+            this.defectsListParams[i][k].width,
+            this.defectsListParams[i][k].height
+          );
+        }
+      }
       if (context && this.bestSolution[i] && this.bestSolution[i].length) {
         if (this.paperParams.allowanceBorder) {
           context.strokeRect(
@@ -691,6 +848,7 @@ export default class CuttingChart extends Vue {
         }
         for (let j = 0; j < this.bestSolution[i].length; j++) {
           context.setLineDash([]);
+
           context.strokeRect(
             this.bestSolution[i][j].x,
             this.bestSolution[i][j].y,
@@ -897,6 +1055,10 @@ export default class CuttingChart extends Vue {
     return <any>this.$refs["file"];
   }
 
+  get file1() {
+    return <any>this.$refs["file1"];
+  }
+
   loadData() {
     let file: any = this.file.files[0];
     let reader: any = new FileReader();
@@ -907,7 +1069,7 @@ export default class CuttingChart extends Vue {
       if (!reader.result) {
         alert("Вы не загрузили файл");
       } else {
-        let data = JSON.stringify(reader.result);
+        // let data = JSON.stringify(reader.result);
         let adder: any = 1;
         reader.result.split(/\r?\n/).forEach(element => {
           let elementArr: any = element.split(" ").map((item: any) => {
@@ -926,6 +1088,46 @@ export default class CuttingChart extends Vue {
 
   load() {
     this.file.click();
+  }
+
+  load1() {
+    this.file1.click();
+  }
+
+  loadData1() {
+    let file: any = this.file1.files[0];
+    let reader: any = new FileReader();
+    reader.readAsText(file);
+    // let arr: any = [];
+    const program = this;
+    reader.onload = function() {
+      if (!reader.result) {
+        alert("Вы не загрузили файл");
+      } else {
+        let adder: any = -1;
+        reader.result.split(/\r?\n/).forEach(element => {
+          let elementArr: any = element.split(" ").map((item: any) => {
+            return Number(item);
+          });
+
+          if (adder != elementArr[0]) {
+            adder = elementArr[0];
+            program.defectsList.push([]);
+          }
+          program.defectsList[adder].push({
+            paper: elementArr[0],
+            x: elementArr[1],
+            y: elementArr[2],
+            width: elementArr[3],
+            height: elementArr[4]
+          });
+          // arr.push(
+          //   Object({ width: elementArr[0], height: elementArr[1], id: adder })
+          // );
+          // adder = adder + 1;
+        });
+      }
+    };
   }
 
   //печать и экспорт карт раскроя

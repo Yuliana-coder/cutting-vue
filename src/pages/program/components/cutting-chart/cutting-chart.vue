@@ -160,6 +160,9 @@
             </div>
           </div>
           <div class="params__item params__item-blanks">
+            <div class="params__item-title">
+              Список заготовок
+            </div>
             <div class="params__item-blanks-add-wrapper">
               <div class="params-item-blanks-add-field">
                 <label class="params-field-label" for="cut-input"
@@ -250,6 +253,138 @@
             <div v-if="isHaveBiggerBlank" class="blanks__error-text">
               В списке детали, размеры которых превышают размеры листа материала
               <div>*С учетом припусков</div>
+            </div>
+          </div>
+          <div class="params__item params__item-blanks">
+            <div class="params__item-title">
+              Список дефектов
+            </div>
+            <div class="defects-wrapper">
+              <div class="defects">
+                <div>
+                  <button class="btn" type="info" width="100%" @click="load1">
+                    Загрузить
+                  </button>
+                  <input
+                    id="downloadData"
+                    ref="file1"
+                    type="file"
+                    hidden
+                    @input="loadData1"
+                  />
+                </div>
+                <div class="defects-paper-add params__item-title">
+                  Добавить лист № {{ countDefectsPaper + 1 }}
+                  <button
+                    class="btn"
+                    @click="
+                      countDefectsPaper = countDefectsPaper + 1;
+                      defectsList.push([]);
+                    "
+                  >
+                    +
+                  </button>
+                </div>
+                <div v-if="countDefectsPaper" class="params__item-title">
+                  Добавить дефект для листа № {{ countDefectsPaper }}
+                  <div class="defects-list">
+                    <div class="defects-add-field">
+                      <label class="params-field-label" for="defectx-input"
+                        >x</label
+                      >
+                      <input
+                        v-model="defectParamsInput.x"
+                        min="0"
+                        type="number"
+                        name="defectx-input"
+                        class="default-input"
+                      />
+                    </div>
+                    <div class="defects-add-field">
+                      <label class="params-field-label" for="defecty-input"
+                        >y</label
+                      >
+                      <input
+                        v-model="defectParamsInput.y"
+                        min="0"
+                        type="number"
+                        name="defecty-input"
+                        class="default-input"
+                      />
+                    </div>
+                    <div class="defects-add-field">
+                      <label class="params-field-label" for="defectw-input"
+                        >Ширина</label
+                      >
+                      <input
+                        v-model="defectParamsInput.width"
+                        min="0"
+                        type="number"
+                        name="defectw-input"
+                        class="default-input"
+                      />
+                    </div>
+                    <div class="defects-add-field">
+                      <label class="params-field-label" for="defecth-input"
+                        >Высота</label
+                      >
+                      <input
+                        v-model="defectParamsInput.height"
+                        min="0"
+                        type="number"
+                        name="defecth-input"
+                        class="default-input"
+                      />
+                    </div>
+                    <div class="params-item-blanks-add-field-btn">
+                      <button class="btn" @click="addToDefectList">+</button>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  v-for="(paper, key3) in defectsList"
+                  :key="key3"
+                  class="params__item-table"
+                >
+                  <table
+                    v-if="defectsList[key3] && defectsList[key3].length"
+                    class="blanks__table"
+                  >
+                    <caption>
+                      Список дефектов листа
+                      {{
+                        key3 + 1
+                      }}
+                    </caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">лист</th>
+                        <th scope="col">Ширина</th>
+                        <th scope="col">Высота</th>
+                        <th scope="col"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(defect, key4) in defectsList[key3]"
+                        :key="key4"
+                      >
+                        <td>{{ defect.paper }}</td>
+                        <td>{{ defect.width }}</td>
+                        <td>{{ defect.height }}</td>
+                        <td>
+                          <button
+                            class="btn"
+                            @click="deleteDefect(defect, key3)"
+                          >
+                            Удалить
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
           <!-- <button

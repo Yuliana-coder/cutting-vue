@@ -120,6 +120,12 @@
   align-items: flex-end;
 }
 
+.defects-add-field {
+  padding: 0 7px;
+  flex: 0 0 20%;
+  max-width: 20%;
+}
+
 table {
   border: 1px solid #ccc;  /* граница всей таблицы */
 }
@@ -224,6 +230,11 @@ td, th {
 }
 
 /*--Панель управления--*/
+
+/* Defects */
+.defects-list {
+  display: flex;
+}
 
 @media print {
   .cutting-chart__canvas-wrapper {
