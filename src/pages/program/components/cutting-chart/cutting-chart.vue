@@ -400,9 +400,16 @@
           <button
             class="btn"
             :disabled="!isNotAllFieldsFilled"
+            @click="guillCittting"
+          >
+            Гильотинный алгоритм
+          </button>
+          <button
+            class="btn"
+            :disabled="!isNotAllFieldsFilled"
             @click="algorithmStart"
           >
-            Запустить алгоритм
+            Негильотинный раскроц
           </button>
         </template>
         <template v-else-if="currentTab === TABS.cutting && isShowCutting">

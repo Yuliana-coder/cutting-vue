@@ -64,6 +64,9 @@ export default class CuttingChart extends Vue {
   partNeighborhood: any = [];
   isLoaded: any = "";
 
+  //признак гильотинности
+  isGuill: any = false;
+
   //дефекты
   defectsList: any = [];
   countDefectsPaper: any = 0; //количесво дефктных листов
@@ -343,47 +346,48 @@ export default class CuttingChart extends Vue {
     array.sort(() => Math.random() - 0.5);
   }
 
-  isNotCrossRigthBlanks(blank, position) {
-    let isCross: any = false;
+  // isNotCrossRigthBlanks(blank, position) {
+  //   let isCross: any = false;
 
-    if (
-      position.x + blank.width + this.allowanceBlankParams.cut <=
-      position.borderX
-    ) {
-      for (let i = 0; i < this.currentSolution.length; i++) {
-        //смотрим на пересечение заготовок на одном вертикальном уровне
-        if (
-          position.y >= this.currentSolution[i].y &&
-          position.y <
-            this.currentSolution[i].y +
-              this.currentSolution[i].height +
-              this.allowanceBlankParams.cut
-        ) {
-          if (
-            this.currentSolution[i].x >= position.x &&
-            position.x + blank.width + this.allowanceBlankParams.cut >
-              this.currentSolution[i].x
-          ) {
-            isCross = true;
-            break;
-          } else if (
-            this.currentSolution[i].x < position.x &&
-            position.x <
-              this.currentSolution[i].x +
-                this.currentSolution[i].width +
-                this.allowanceBlankParams.cut
-          ) {
-            isCross = true;
-            break;
-          }
-        }
-      }
-    } else {
-      isCross = true;
-    }
+  //   if (this.isGuill &&
+  //     position.x + blank.width + this.allowanceBlankParams.cut <=
+  //     position.borderX || !this.isGuill
+  //   ) {
+  //     for (let i = 0; i < this.currentSolution.length; i++) {
+  //       //смотрим на пересечение заготовок на одном вертикальном уровне
+  //       if (
+  //         position.y >= this.currentSolution[i].y &&
+  //         position.y <
+  //           this.currentSolution[i].y +
+  //             this.currentSolution[i].height +
+  //             this.allowanceBlankParams.cut
+  //       ) {
+  //         if (
+  //           this.currentSolution[i].x >= position.x &&
+  //           position.x + blank.width + this.allowanceBlankParams.cut >
+  //             this.currentSolution[i].x
+  //         ) {
+  //           isCross = true;
+  //           break;
+  //         } else if (
+  //           this.currentSolution[i].x < position.x &&
+  //           position.x <
+  //             this.currentSolution[i].x +
+  //               this.currentSolution[i].width +
+  //               this.allowanceBlankParams.cut
+  //         ) {
+  //           isCross = true;
+  //           break;
+  //         }
+  //       }
+  //     }
+  //   }
+  //    else {
+  //     isCross = true;
+  //   }
 
-    return isCross;
-  }
+  //   return isCross;
+  // }
 
   // проверка условия при размещении на пересечение с дефектной областью
   isCrossDefects(blank, position) {
@@ -414,7 +418,11 @@ export default class CuttingChart extends Vue {
             this.defectsListParams[this.finalySolution.length][i].y +
             this.defectsListParams[this.finalySolution.length][i].height
         };
-        if (a.y > b.y1 || a.y1 < b.y || a.x1 < b.x || a.x > b.x1) {
+        // a.y > b.y1 - заготовка ниже дефекта
+        // a.y1 < b.y - заготовка выше дефекта
+        // a.x1 < b.x - заготовка левее дефекта
+        // a.x > b.x1 - заготовка правее дефекта
+        if (a.y >= b.y1 || a.y1 <= b.y || a.x1 <= b.x || a.x >= b.x1) {
           isCross = false;
         } else {
           break;
@@ -424,75 +432,6 @@ export default class CuttingChart extends Vue {
     return isCross;
   }
 
-  // //определяет может ли заготовка быть размещена на данную позицию
-  // isCanBeArranged(blank, position) {
-  //   //проверка на возможность расположить заготовку в текущую позицию
-  //   let isCan: any = false;
-  //   if(!this.isCrossDefects(blank, position)){
-  //     //если ширина заготовки не выходит за правую границу
-  //     if (!this.isNotCrossRigthBlanks(blank, position)) {
-  //       //если ширина заготовки не выходит за верхнюю границу
-  //       let isHaveBottomElement: any = false;
-
-  //       //если под заготовкой есть детали, то в пределах ширины нельзя персечься с заготовкой
-  //       for (let i = 0; i < this.currentSolution.length; i++) {
-  //         if (this.currentSolution[i].y > position.y) {
-  //           //смотрим на зготовки с которыми можем персечься, то есть в пределах ширины
-  //           if (
-  //             position.x >= this.currentSolution[i].x &&
-  //             position.x <=
-  //               this.currentSolution[i].x + this.currentSolution[i].width
-  //           ) {
-  //             isHaveBottomElement = true;
-  //             if (
-  //               this.currentSolution[i].y >=
-  //               position.y + blank.height + this.allowanceBlankParams.cut
-  //             ) {
-  //               isCan = true;
-  //             } else {
-  //               isCan = false;
-  //               break;
-  //             }
-  //           }
-  //         } else if (
-  //           position.y >= this.currentSolution[i].y &&
-  //           position.y <
-  //             this.currentSolution[i].y +
-  //               this.currentSolution[i].height +
-  //               this.allowanceBlankParams.cut
-  //         ) {
-  //           if (
-  //             position.x >= this.currentSolution[i].x &&
-  //             position.x <=
-  //               this.currentSolution[i].x + this.currentSolution[i].width
-  //           ) {
-  //             isCan = false;
-  //             break;
-  //           } else {
-  //             isCan = true;
-  //           }
-  //         }
-  //         //  else {
-  //         //   isCan = true;
-  //         // }
-  //       }
-
-  //       //если под текущей позицией нет заготовок, то смотрим не выходит ли заготовки за пределы листа по высоте
-  //       if (!isHaveBottomElement) {
-  //         if (
-  //           position.y + blank.height + this.allowanceBlankParams.cut >
-  //           this.paperParams.height - this.paperParams.allowanceBorder
-  //         ) {
-  //           isCan = false;
-  //         } else {
-  //           isCan = true;
-  //         }
-  //       }
-  //     }
-  //   }
-  //   return isCan;
-  // }
-
   //определяет может ли заготовка быть размещена на данную позицию
   isCanBeArranged(blank, position) {
     //проверка на возможность расположить заготовку в текущую позицию
@@ -500,24 +439,22 @@ export default class CuttingChart extends Vue {
     if (!this.isCrossDefects(blank, position)) {
       // проверка на выход за границы листа
       if (
-        position.x + blank.width + this.allowanceBlankParams.cut <=
-          position.borderX &&
+        ((this.isGuill &&
+          position.x + blank.width + this.allowanceBlankParams.cut <=
+            position.borderX) ||
+          !this.isGuill) &&
         position.y + blank.height + this.allowanceBlankParams.cut <=
-          this.paperParams.height - this.paperParams.allowanceBorder
+          this.paperParams.height - this.paperParams.allowanceBorder &&
+        position.x + blank.width + this.allowanceBlankParams.cut <=
+          this.paperParams.width - this.paperParams.allowanceBorder
       ) {
         isCan = true;
 
         let a: any = {
-          x:
-            position.x === this.paperParams.allowanceBorder
-              ? position.x
-              : position.x + this.allowanceBlankParams.cut,
+          x: position.x,
           y: position.y,
-          x1:
-            position.x === this.paperParams.allowanceBorder
-              ? position.x + blank.width
-              : position.x + blank.width + this.allowanceBlankParams.cut,
-          y1: position.y + blank.height
+          x1: position.x + blank.width + this.allowanceBlankParams.cut,
+          y1: position.y + blank.height + this.allowanceBlankParams.cut
         };
 
         let b: any = {};
@@ -527,8 +464,14 @@ export default class CuttingChart extends Vue {
           b = {
             x: this.currentSolution[i].x,
             y: this.currentSolution[i].y,
-            x1: this.currentSolution[i].x + this.currentSolution[i].width,
-            y1: this.currentSolution[i].y + this.currentSolution[i].height
+            x1:
+              this.currentSolution[i].x +
+              this.currentSolution[i].width +
+              this.allowanceBlankParams.cut,
+            y1:
+              this.currentSolution[i].y +
+              this.currentSolution[i].height +
+              this.allowanceBlankParams.cut
           };
           if (a.y >= b.y1 || a.y1 <= b.y || a.x1 <= b.x || a.x >= b.x1) {
             isCan = true;
@@ -635,13 +578,28 @@ export default class CuttingChart extends Vue {
         //начинаем новый лист, располагаем там
         this.currentPaper = this.currentPaper + 1;
         //делитим список допустимых позиций, начинаем приоритетный список с последней на размещенной фигуры
-        this.positionsList = [
-          {
+        // this.positionsList = [
+        //   {
+        //     x: this.paperParams.allowanceBorder,
+        //     y: this.paperParams.allowanceBorder,
+        //     borderX: this.paperParams.width - this.paperParams.allowanceBorder
+        //   }
+        // ];
+        if (
+          this.defectsListParams[this.finalySolution.length] &&
+          this.defectsListParams[this.finalySolution.length].length
+        ) {
+          this.fillPositionsList(
+            this.defectsListParams[this.finalySolution.length]
+          );
+        } else {
+          this.positionsList = [];
+          this.positionsList.push({
             x: this.paperParams.allowanceBorder,
             y: this.paperParams.allowanceBorder,
             borderX: this.paperParams.width - this.paperParams.allowanceBorder
-          }
-        ];
+          });
+        }
         // if (this.currentSolution && this.currentSolution.length) {
         this.finalySolution.push(this.currentSolution);
         // }
@@ -688,6 +646,11 @@ export default class CuttingChart extends Vue {
     return filteredNeighorhoodList;
   }
 
+  guillCittting() {
+    this.isGuill = true;
+    this.algorithmStart();
+  }
+
   algorithmStart() {
     this.isLoaded = "Алгоритм выполняется...";
     let promise = new Promise((resolve, reject) => {
@@ -705,28 +668,55 @@ export default class CuttingChart extends Vue {
       });
   }
 
+  fillPositionsList(defects: any) {
+    //начало координат допустимая позиция
+    this.positionsList = [];
+    this.positionsList.push({
+      x: this.paperParams.allowanceBorder,
+      y: this.paperParams.allowanceBorder,
+      borderX: this.paperParams.width - this.paperParams.allowanceBorder
+    });
+    for (let i = 0; i < defects.length; i++) {
+      //нижняя позиция
+      this.positionsList.push({
+        x: defects[i].x,
+        y: defects[i].y + defects[i].height,
+        borderX: this.paperParams.width - this.paperParams.allowanceBorder
+      });
+      //правая позиция
+      this.positionsList.push({
+        x: defects[i].x + defects[i].width,
+        y: defects[i].y,
+        borderX: this.paperParams.width - this.paperParams.allowanceBorder
+      });
+      //верхняя позиция над дефектом
+      this.positionsList.push({
+        x: defects[i].x,
+        y: this.paperParams.allowanceBorder,
+        borderX: this.paperParams.width - this.paperParams.allowanceBorder
+      });
+      //правая верхняя позиция
+      this.positionsList.push({
+        x: defects[i].x + defects[i].width,
+        y: this.paperParams.allowanceBorder,
+        borderX: this.paperParams.width - this.paperParams.allowanceBorder
+      });
+      //левая позиция
+      this.positionsList.push({
+        x: this.paperParams.allowanceBorder,
+        y: defects[i].y,
+        borderX: this.paperParams.width - this.paperParams.allowanceBorder
+      });
+    }
+  }
+
   algorithmWork() {
     this.countScale();
     //приоритетный список, первое решение - рандомный список заготовок
     let solution: any = [];
     //список доступных позиций, первая позиций - начало координат
     if (this.defectsListParams[0] && this.defectsListParams[0].length) {
-      for (let i = 0; i < this.defectsListParams[0].length; i++) {
-        this.positionsList.push({
-          x: this.defectsListParams[0][i].x,
-          y:
-            this.defectsListParams[0][i].y +
-            this.defectsListParams[0][i].height,
-          borderX: this.paperParams.width - this.paperParams.allowanceBorder
-        });
-
-        this.positionsList.push({
-          x:
-            this.defectsListParams[0][i].x + this.defectsListParams[0][i].width,
-          y: this.defectsListParams[0][i].y,
-          borderX: this.paperParams.width - this.paperParams.allowanceBorder
-        });
-      }
+      this.fillPositionsList(this.defectsListParams[0]);
     } else {
       this.positionsList = [
         {
@@ -736,8 +726,6 @@ export default class CuttingChart extends Vue {
         }
       ];
     }
-    //количество итераций
-    // let iteretionsCount = 1;
 
     for (let i = 0; i < this.blanksListParams.length; i++) {
       solution.push(this.blanksListParams[i].id - 1);
@@ -772,13 +760,28 @@ export default class CuttingChart extends Vue {
         this.currentPaper = 1;
         solution = this.partNeighborhood[k];
         this.finalySolution = [];
-        this.positionsList = [
-          {
+        // this.positionsList = [
+        //   {
+        //     x: this.paperParams.allowanceBorder,
+        //     y: this.paperParams.allowanceBorder,
+        //     borderX: this.paperParams.width - this.paperParams.allowanceBorder
+        //   }
+        // ];
+        if (
+          this.defectsListParams[this.finalySolution.length] &&
+          this.defectsListParams[this.finalySolution.length].length
+        ) {
+          this.fillPositionsList(
+            this.defectsListParams[this.finalySolution.length]
+          );
+        } else {
+          this.positionsList = [];
+          this.positionsList.push({
             x: this.paperParams.allowanceBorder,
             y: this.paperParams.allowanceBorder,
             borderX: this.paperParams.width - this.paperParams.allowanceBorder
-          }
-        ];
+          });
+        }
 
         while (this.finalySolutionLength != this.blanksListParams.length) {
           this.decodingProcedure(solution);
@@ -868,16 +871,6 @@ export default class CuttingChart extends Vue {
             );
           }
 
-          // context.font = "bold 16px serif";
-
-          // context.fillText(
-          //   String(this.bestSolution[i][j].id + 1),
-          //   this.bestSolution[i][j].x + 20,
-          //   this.bestSolution[i][j].y +
-          //     20 +
-          //     this.allowanceBlankParams.blankBorder
-          // );
-
           context.font = "bold 12px serif";
 
           context.fillText(
@@ -933,6 +926,21 @@ export default class CuttingChart extends Vue {
     this.canvas = canvasElement;
 
     let context = this.canvas.getContext("2d");
+
+    if (
+      this.defectsListParams[showPaper - 1] &&
+      this.defectsListParams[showPaper - 1].length
+    ) {
+      for (let k = 0; k < this.defectsListParams[showPaper - 1].length; k++) {
+        context.fillRect(
+          this.defectsListParams[showPaper - 1][k].x,
+          this.defectsListParams[showPaper - 1][k].y,
+          this.defectsListParams[showPaper - 1][k].width,
+          this.defectsListParams[showPaper - 1][k].height
+        );
+      }
+    }
+
     context.font = "48px";
     if (
       context &&
@@ -1069,7 +1077,6 @@ export default class CuttingChart extends Vue {
       if (!reader.result) {
         alert("Вы не загрузили файл");
       } else {
-        // let data = JSON.stringify(reader.result);
         let adder: any = 1;
         reader.result.split(/\r?\n/).forEach(element => {
           let elementArr: any = element.split(" ").map((item: any) => {
@@ -1098,7 +1105,6 @@ export default class CuttingChart extends Vue {
     let file: any = this.file1.files[0];
     let reader: any = new FileReader();
     reader.readAsText(file);
-    // let arr: any = [];
     const program = this;
     reader.onload = function() {
       if (!reader.result) {
@@ -1121,10 +1127,6 @@ export default class CuttingChart extends Vue {
             width: elementArr[3],
             height: elementArr[4]
           });
-          // arr.push(
-          //   Object({ width: elementArr[0], height: elementArr[1], id: adder })
-          // );
-          // adder = adder + 1;
         });
       }
     };
