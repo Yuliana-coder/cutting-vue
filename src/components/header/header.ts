@@ -1,4 +1,8 @@
 import { Vue, Component } from "vue-property-decorator";
 
 @Component
-export default class Header extends Vue {}
+export default class Header extends Vue {
+  goToHome() {
+    this.$router.push("/");
+  }
+}

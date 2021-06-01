@@ -1,6 +1,11 @@
 .header {
-  height: 70px;
+  height: 80px;
   padding: 15px 50px;
-  background-color: lightblue;
+  /* background-colorgb(223, 234, 238)lue; */
   display: flex;
+  align-items: center;
+}
+
+.header__text:hover {
+  cursor: pointer;
 }

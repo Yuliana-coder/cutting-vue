@@ -1,0 +1,89 @@
+.homepage__wrapper {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.homepage__program {
+    border: 1px solid black;
+    padding:  0 15px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.homepage__program:hover {
+    cursor: pointer;
+    background-color: rgb(203, 211, 214);
+}
+
+.homepage__item {
+    padding: 15px;
+}
+
+.homepage__description {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.homepage__description-item {
+    border-bottom: 1px solid black;
+    width: 70%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.homepage__description-item:hover {
+    cursor: pointer;
+}
+
+.homepage__description-text {
+    padding: 10px;
+    width: 80%;
+    /* text-align: center; */
+}
+
+.homepage__item_rigth {
+    background-image: url('../../assets/img/icons/rigth.svg');
+    background-position: right;
+    width: 20px;
+    height: 20px;
+    overflow: auto;
+    background-size: contain;
+    margin-left: 5px;
+    opacity: 0.7;
+}
+
+.homepage__program:hover .homepage__item_rigth { 
+    opacity: 1;
+    cursor: pointer;
+}
+
+.homepage__item_bottom {
+    background-image: url('../../assets/img/icons/bottom.svg');
+    background-position: right;
+    width: 20px;
+    height: 20px;
+    overflow: auto;
+    background-size: contain;
+    margin-left: 25px;
+    position: absolute;
+    right: 2%;
+    top: 25px;
+}
+
+.homepage__item-btn {
+    display: flex;
+}
+
+.text-paragraph {
+    text-indent: 20px;
+}
+
+

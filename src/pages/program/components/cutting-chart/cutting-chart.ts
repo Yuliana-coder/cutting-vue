@@ -439,9 +439,7 @@ export default class CuttingChart extends Vue {
     if (!this.isCrossDefects(blank, position)) {
       // проверка на выход за границы листа
       if (
-        ((this.isGuill &&
-          position.x + blank.width + this.allowanceBlankParams.cut <=
-            position.borderX) ||
+        ((this.isGuill && position.x + blank.width <= position.borderX) ||
           !this.isGuill) &&
         position.y + blank.height + this.allowanceBlankParams.cut <=
           this.paperParams.height - this.paperParams.allowanceBorder &&
