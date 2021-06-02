@@ -75,26 +75,28 @@
             <div class="params__item-input-wrapper">
               <div class="params-field">
                 <label class="params-field-label" for="width-input"
-                  >Ширина, мм</label
+                  >Ширина, мм*</label
                 >
                 <input
                   v-model="paperParamsInput.width"
-                  min="0"
+                  min="10"
                   type="number"
                   name="width-input"
                   class="default-input"
+                  @input="checkPaperParams"
                 />
               </div>
               <div class="params-field">
                 <label class="params-field-label" for="height-input"
-                  >Высота, мм</label
+                  >Высота, мм*</label
                 >
                 <input
                   v-model="paperParamsInput.height"
-                  min="0"
+                  min="10"
                   type="number"
                   name="height-input"
                   class="default-input"
+                  @input="checkPaperParams"
                 />
               </div>
               <div class="params-field">
@@ -107,8 +109,16 @@
                   type="number"
                   name="allowance-input"
                   class="default-input"
+                  @input="
+                    $event.target.value === '-'
+                      ? ($event.target.value = '')
+                      : ($event.target.value = $event.target.value)
+                  "
                 />
               </div>
+            </div>
+            <div v-if="isShowErrorPaperParams" class="blanks__error-text">
+              Ширина и высота листа материала не могут быть ниже 10 мм
             </div>
           </div>
           <div class="params__item">
@@ -148,7 +158,7 @@
           <div class="params__item">
             <div class="params-field">
               <label class="params-field-label" for="iteretions-input"
-                >Количество итераций</label
+                >Количество итераций*</label
               >
               <input
                 v-model="iteretionsCount"
@@ -161,7 +171,7 @@
           </div>
           <div class="params__item params__item-blanks">
             <div class="params__item-title">
-              Список заготовок
+              Список заготовок*
             </div>
             <div class="params__item-blanks-add-wrapper">
               <div class="params-item-blanks-add-field">
@@ -243,7 +253,7 @@
                     <td>{{ blank.height }}</td>
                     <td>
                       <button class="btn" @click="deleteBlank(blank.id)">
-                        Удалить {{ blank.id }}
+                        Удалить
                       </button>
                     </td>
                   </tr>
@@ -397,20 +407,22 @@
           <!-- <button @click="addCanvas">
             Добавить
           </button> -->
-          <button
-            class="btn"
-            :disabled="!isNotAllFieldsFilled"
-            @click="guillCittting"
-          >
-            Гильотинный алгоритм
-          </button>
-          <button
-            class="btn"
-            :disabled="!isNotAllFieldsFilled"
-            @click="algorithmStart"
-          >
-            Негильотинный раскроц
-          </button>
+          <div class="params__blank-btn-wrapper">
+            <button
+              class="btn"
+              :disabled="!isNotAllFieldsFilled"
+              @click="guillCittting"
+            >
+              Гильотинный
+            </button>
+            <button
+              class="btn"
+              :disabled="!isNotAllFieldsFilled"
+              @click="algorithmStart"
+            >
+              Негильотинный
+            </button>
+          </div>
         </template>
         <template v-else-if="currentTab === TABS.cutting && isShowCutting">
           <div class="params__blank-list-wrapper">

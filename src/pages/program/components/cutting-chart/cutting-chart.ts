@@ -63,6 +63,7 @@ export default class CuttingChart extends Vue {
   iteretionsCount: any = 0;
   partNeighborhood: any = [];
   isLoaded: any = "";
+  isShowErrorPaperParams: any = false;
 
   //признак гильотинности
   isGuill: any = false;
@@ -263,6 +264,11 @@ export default class CuttingChart extends Vue {
         this.scaleFactor =
           MAX_HEIGHT_PAPER / Number(this.paperParamsInput.height);
       }
+    } else if (
+      Number(this.paperParamsInput.width) < 500 ||
+      Number(this.paperParamsInput.height) < 500
+    ) {
+      this.scaleFactor = 100;
     }
 
     for (let i = 0; i < this.canvasCount; i++) {
@@ -320,13 +326,21 @@ export default class CuttingChart extends Vue {
 
   get isNotAllFieldsFilled() {
     return Boolean(
-      this.paperParamsInput.width &&
-        this.paperParamsInput.height &&
+      this.paperParamsInput.width >= 10 &&
+        this.paperParamsInput.height >= 10 &&
         this.blanksList &&
         this.blanksList.length &&
         this.iteretionsCount &&
         !this.isHaveBiggerBlank
     );
+  }
+
+  checkPaperParams() {
+    if (this.paperParamsInput.width < 10 || this.paperParamsInput.height < 10) {
+      this.isShowErrorPaperParams = true;
+    } else {
+      this.isShowErrorPaperParams = false;
+    }
   }
 
   addCanvas() {
@@ -1073,7 +1087,7 @@ export default class CuttingChart extends Vue {
     let arr: any = [];
     reader.onload = function() {
       if (!reader.result) {
-        alert("Вы не загрузили файл");
+        alert("Вы не загрузили файл или файл был пуст");
       } else {
         let adder: any = 1;
         reader.result.split(/\r?\n/).forEach(element => {
@@ -1088,7 +1102,19 @@ export default class CuttingChart extends Vue {
       }
     };
 
-    this.blanksList = arr;
+    if (
+      !arr ||
+      (arr && !arr.length) ||
+      arr.find((item: any) => {
+        return isNaN(item.height) || isNaN(item.width) || isNaN(item.id);
+      })
+    ) {
+      alert(
+        "Ошибка в файле, не валидные данные. Прочтите инструкцию, чтобы сверить структуру файла."
+      );
+    } else {
+      this.blanksList = arr;
+    }
   }
 
   load() {

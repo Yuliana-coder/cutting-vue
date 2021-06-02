@@ -236,6 +236,10 @@ td, th {
   display: flex;
 }
 
+.params__blank-btn-wrapper {
+  display: flex;
+}
+
 @media print {
   .cutting-chart__canvas-wrapper {
    page-break-after: always;
